@@ -4,7 +4,19 @@ Set-ExecutionPolicy Unrestricted -Force
 pip install pillow
 pip freeze > requirements.tx
 python main_file_name.py
+
+echo "# ImgServer" >> README.md
 git init
 git add .
 git commit - m  'feat: first commit'
 git branch -M main
+git remote add origin https://github.com/lukashenko-work/ImgServer.git
+git push -u origin main
+
+#Удалить файл из репозитория
+Добавьте файл в .gitignore
+Удаляем файл только из репозитория, и физически файл сохранится на диске
+git rm --cached --ignore-unmatch app.log
+git commit -am "log removing"
+git push origin {branch name}
+

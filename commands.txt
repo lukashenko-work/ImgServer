@@ -3,3 +3,8 @@ Set-ExecutionPolicy Unrestricted -Force
 .\.venv\Scripts\Activate.ps1
 pip install pillow
 pip freeze > requirements.tx
+python main_file_name.py
+git init
+git add .
+git commit - m  'feat: first commit'
+git branch -M main

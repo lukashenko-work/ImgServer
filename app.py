@@ -27,6 +27,7 @@ ALOWED_MIME_TYPES = {
 
 LOG_FILE = os.path.join(LOGS_DIR, 'app.log')
 
+
 def setup_logging():
     """Настройка логирования"""
     log_format = '[%(asctime)s] %(levelname)s: %(message)s'
@@ -42,13 +43,16 @@ def setup_logging():
         ]
     )
 
+
 def log_info(message):
     """Логирует информационное сообщение"""
     logging.info(message)
 
+
 def log_error(message):
     """Логирует сообщение об ошибке"""
     logging.info(message)
+
 
 def log_success(message):
     """Логирует успешное действие"""
@@ -60,19 +64,23 @@ def ensure_directories():
     os.makedirs(IMAGE_DIR, exist_ok=True)
     os.makedirs(LOGS_DIR, exist_ok=True)
 
-#Валидация файлов
+
+# Валидация файлов
 def get_file_extension(filename):
     """Получат расширение файла в нижнем регистре с точкой"""
     return os.path.splitext(filename)[1].lower()
+
 
 def is_allowed_extension(filename):
     """Проверяет расширение файла"""
     ext = get_file_extension(filename)
     return ext in ALLOWED_EXTENSIONS
 
+
 def is_valid_file_size(file_size):
     """Проверяет размер файла"""
     return 0 < file_size <= MAX_FILE_SIZE
+
 
 def format_file_size(size_bytes):
     """Формирует размер файла для отображения"""
@@ -83,10 +91,12 @@ def format_file_size(size_bytes):
     else:
         return f'{size_bytes / (1024 * 1024):.2f} MB'
 
+
 def generate_unique_filename(origina_filename):
     ext = get_file_extension(origina_filename)
     unique_id = str(uuid.uuid4())
     return f'{unique_id}{ext}'
+
 
 def validate_file(filename, file_size):
     """
@@ -107,7 +117,8 @@ def validate_file(filename, file_size):
 
     return True, None
 
-#Прасинг multipart/form-data
+
+# Прасинг multipart/form-data
 def parse_multipart_form_data(content_type, body):
     """
     Парсит multipart/form-data и извлекает файл
@@ -118,7 +129,7 @@ def parse_multipart_form_data(content_type, body):
     try:
         if 'boundary=' not in content_type:
             return None, None
-        
+
         boundary = content_type.split('boundary=')[1].strip()
         boundary_bytes = f'--{boundary}'.encode()
 
@@ -142,6 +153,7 @@ def parse_multipart_form_data(content_type, body):
     except Exception as e:
         log_error(f'Ошибка парсинга multipart {e}')
         return None, None
+
 
 def save_file(filename, file_content):
     try:
@@ -230,7 +242,6 @@ class ImageServerHandler(BaseHTTPRequestHandler):
             self.log(error_msg, 'error')
             self.send_error_response(500, error_msg)
 
-
     def send_welcome_page(self):
         """Отправляет приветственное сообщение"""
         message_data = {
@@ -271,6 +282,7 @@ class ImageServerHandler(BaseHTTPRequestHandler):
             'status_code': status_code
         }
         self.send_json_response(status_code, error_data)
+
 
 if __name__ == '__main__':
     ensure_directories()

@@ -1,0 +1,5 @@
+python -m venv .venv
+Set-ExecutionPolicy Unrestricted -Force
+.\.venv\Scripts\Activate.ps1
+pip install pillow
+pip freeze > requirements.tx

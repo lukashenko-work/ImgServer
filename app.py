@@ -60,6 +60,52 @@ def ensure_directories():
     os.makedirs(IMAGE_DIR, exist_ok=True)
     os.makedirs(LOGS_DIR, exist_ok=True)
 
+#Валидация файлов
+def get_file_extension(filename):
+    """Получат расширение файла в нижнем регистре с точкой"""
+    return os.path.splitext(filename)[1].lower()
+
+def is_allowed_extension(filename):
+    """Проверяет расширение файла"""
+    ext = get_file_extension(filename)
+    return ext in ALLOWED_EXTENSIONS
+
+def is_valid_file_size(file_size):
+    """Проверяет размер файла"""
+    return 0 < file_size <= MAX_FILE_SIZE
+
+def format_file_size(size_bytes):
+    """Формирует размер файла для отображения"""
+    if size_bytes < 1024:
+        return f'{size_bytes} B'
+    elif size_bytes < 1024 * 1024:
+        return f'{size_bytes / 1024:.2f} KB'
+    else:
+        return f'{size_bytes / (1024 * 1024):.2f} MB'
+
+def generate_unique_filename(origina_filename):
+    ext = get_file_extension(origina_filename)
+    unique_id = str(uuid.uui4())
+    return f'{unique_id}{ext}'
+
+def validate_file(filename, file_size):
+    """
+    Валидирует файл по имени и размеру
+    Возвращает (True, None), если валиден, иначе (False, error message)
+    """
+    if not is_allowed_extension(filename):
+        ext = get_file_extension(filename)
+        return False, f'Неподдерживаемый формат файла {ext}. Разрешены только {','.join(ALLOWED_EXTENSIONS)}'
+
+    if not is_valid_file_size(file_size):
+        if file_size <= 0:
+            return False, 'Файл пустой'
+        else:
+            max_size_formatted = format_file_size(MAX_FILE_SIZE)
+            actual_size_formatted = format_file_size(file_size)
+            return False, f'Файл слишком большой {actual_size_formatted}. Максимальный размер файла {max_size_formatted}'
+
+    return True, None
 
 class ImageServerHandler(BaseHTTPRequestHandler):
     """Обработчик HTTP запросов для сервера изображений"""

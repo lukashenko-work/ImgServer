@@ -16,7 +16,7 @@ git push -u origin main
 #Удалить файл из репозитория
 Добавьте файл в .gitignore
 Удаляем файл только из репозитория, и физически файл сохранится на диске
-git rm --cached --ignore-unmatch app.log
+git rm --cached --ignore-unmatch logs\app.log
 git commit -am "log removing"
 git push origin {branch name}
 

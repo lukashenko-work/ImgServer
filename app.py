@@ -16,7 +16,7 @@ PORT = 8000
 IMAGE_DIR = 'images'
 LOGS_DIR = 'logs'
 
-MAX_FILE_SIZE = 5 * 1024 * 1024 #5Mb
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5Mb
 
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif'}
 ALOWED_MIME_TYPES = {
@@ -28,94 +28,11 @@ ALOWED_MIME_TYPES = {
 LOG_FILE = os.path.join(LOGS_DIR, 'app.log')
 
 
-def setup_logging():
-    """Настройка логирования"""
-    log_format = '[%(asctime)s] %(levelname)s: %(message)s'
-    date_format = '%Y-%m-%d %H:%M:%S'
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format=log_format,
-        datefmt=date_format,
-        handlers=[
-            logging.FileHandler(LOG_FILE, encoding='utf-8'),
-            logging.StreamHandler()
-        ]
-    )
 
 
-def log_info(message):
-    """Логирует информационное сообщение"""
-    logging.info(message)
 
 
-def log_error(message):
-    """Логирует сообщение об ошибке"""
-    logging.info(message)
 
-
-def log_success(message):
-    """Логирует успешное действие"""
-    logging.info(f'Success: {message}')
-
-
-def ensure_directories():
-    """Создает нелобходимые папки если их нет"""
-    os.makedirs(IMAGE_DIR, exist_ok=True)
-    os.makedirs(LOGS_DIR, exist_ok=True)
-
-
-# Валидация файлов
-def get_file_extension(filename):
-    """Получат расширение файла в нижнем регистре с точкой"""
-    return os.path.splitext(filename)[1].lower()
-
-
-def is_allowed_extension(filename):
-    """Проверяет расширение файла"""
-    ext = get_file_extension(filename)
-    return ext in ALLOWED_EXTENSIONS
-
-
-def is_valid_file_size(file_size):
-    """Проверяет размер файла"""
-    return 0 < file_size <= MAX_FILE_SIZE
-
-
-def format_file_size(size_bytes):
-    """Формирует размер файла для отображения"""
-    if size_bytes < 1024:
-        return f'{size_bytes} B'
-    elif size_bytes < 1024 * 1024:
-        return f'{size_bytes / 1024:.2f} KB'
-    else:
-        return f'{size_bytes / (1024 * 1024):.2f} MB'
-
-
-def generate_unique_filename(origina_filename):
-    ext = get_file_extension(origina_filename)
-    unique_id = str(uuid.uuid4())
-    return f'{unique_id}{ext}'
-
-
-def validate_file(filename, file_size):
-    """
-    Валидирует файл по имени и размеру
-    Возвращает (True, None), если валиден, иначе (False, error message)
-    """
-    if not is_allowed_extension(filename):
-        ext = get_file_extension(filename)
-        return False, f'Неподдерживаемый формат файла {ext}. Разрешены только {','.join(ALLOWED_EXTENSIONS)}'
-
-    if not is_valid_file_size(file_size):
-        if file_size <= 0:
-            return False, 'Файл пустой'
-        else:
-            max_size_formatted = format_file_size(MAX_FILE_SIZE)
-            actual_size_formatted = format_file_size(file_size)
-            return False, f'Файл слишком большой {actual_size_formatted}. Максимальный размер файла {max_size_formatted}'
-
-    return True, None
 
 
 # Прасинг multipart/form-data
@@ -138,12 +55,12 @@ def parse_multipart_form_data(content_type, body):
             if b'Content-Disposition' in part:
                 disposition_line = part.split(b'\r\n')[1].decode('utf-8')
                 if 'filename' in disposition_line:
-                    #Парсим имя файла
+                    # Парсим имя файла
                     filename_start = disposition_line.find('filename="') + 10
                     filename_end = disposition_line.find('"', filename_start)
                     filename = disposition_line[filename_start:filename_end]
 
-                    #Извлекаем содержимое файла
+                    # Извлекаем содержимое файла
                     content_start = part.find(b'\r\n\r\n') + 4
                     content_end = part.rfind(b'\r\n')
                     file_content = part[content_start:content_end]
@@ -153,22 +70,6 @@ def parse_multipart_form_data(content_type, body):
     except Exception as e:
         log_error(f'Ошибка парсинга multipart {e}')
         return None, None
-
-
-def save_file(filename, file_content):
-    try:
-        new_filname = generate_unique_filename(filename)
-        file_path = os.path.join(IMAGE_DIR, new_filname)
-
-        with open(file_path, 'wb') as f:
-            f.write(file_content)
-        
-        log_success(f'Файл {new_filname} (оригинал: {filename}) сохранен')
-        return True, new_filname
-    except Exception as e:
-        error_msg = f'Ошибка сохранения файла: {e}'
-        log_error(error_msg)
-        return False, error_msg
 
 
 class ImageServerHandler(BaseHTTPRequestHandler):
@@ -290,3 +191,4 @@ if __name__ == '__main__':
     server_adress = (HOST, PORT)
     httpd = HTTPServer(server_adress, ImageServerHandler)
     httpd.serve_forever()  
+

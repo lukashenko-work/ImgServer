@@ -2,6 +2,9 @@ python -m venv .venv
 Set-ExecutionPolicy Unrestricted -Force
 .\.venv\Scripts\Activate.ps1
 pip install pillow
+pip install psycopg2
+pip install flask
+pip install flask_cors
 pip freeze > requirements.txt
 python main_file_name.py
 

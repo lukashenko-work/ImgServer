@@ -15,6 +15,8 @@ def setup_logging():
     log_format = '[%(asctime)s] %(levelname)s: %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'
 
+    print(Config.LOG_FILE_PATH)
+
     logging.basicConfig(
         level=logging.INFO,
         format=log_format,
@@ -24,6 +26,7 @@ def setup_logging():
             logging.StreamHandler()
         ]
     )
+    log_info(f'Logging started at {Config.LOG_FILE_PATH}')
 
 
 def log_info(message):
@@ -44,6 +47,7 @@ def log_success(message):
 # Files and folders utils
 def ensure_directories():
     """Создает нелобходимые папки если их нет"""
+    log_info('Checking/creating directories')
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
     os.makedirs(Config.LOGS_FOLDER, exist_ok=True)
     os.makedirs(Config.BACKUP_FOLDER, exist_ok=True)
@@ -63,7 +67,7 @@ def is_allowed_extension(filename):
 
 def is_valid_file_size(file_size):
     """Проверяет размер файла"""
-    return 0 < file_size <= Config.MAX_FILE_SIZE
+    return 0 < file_size <= Config.MAX_CONTENT_LENGTH
 
 
 def format_file_size(size_bytes):
@@ -96,7 +100,7 @@ def validate_file(filename, file_size):
         if file_size <= 0:
             return False, 'Файл пустой'
         else:
-            max_size_formatted = format_file_size(Config.MAX_FILE_SIZE)
+            max_size_formatted = format_file_size(Config.MAX_CONTENT_LENGTH)
             actual_size_formatted = format_file_size(file_size)
             return False, f'Файл слишком большой {
                 actual_size_formatted}. Максимальный размер файла {
@@ -105,7 +109,7 @@ def validate_file(filename, file_size):
     return True, None
 
 
-def save_file(filename, file_content):
+def save_file(filename: str, file_content):
     try:
         original_name = secure_filename(filename)
         new_filname = generate_unique_filename(original_name)

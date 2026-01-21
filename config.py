@@ -8,11 +8,19 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key')
-    DEBUG = os.getenv('DEBUG', 'True').lower()
+    DEBUG = bool(os.getenv('DEBUG', 'True'))
 
     # Directories
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'images')
-    MAX_FILE_SIZE = 5 * 1024 * 1024  # 5Mb
+
+    # Web routes
+    ROOT_ROUTE = '/'
+    UPLOAD_ROUTE = ROOT_ROUTE + 'upload'
+    DELETE_ROUTE = ROOT_ROUTE + 'delete'
+    IMAGES_ROUTE = ROOT_ROUTE + 'images'
+
+    # Max image file size
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5Mb
 
     ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif'}
     ALOWED_MIME_TYPES = {

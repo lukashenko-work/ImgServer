@@ -1,5 +1,6 @@
 """database.oy"""
 
+from datetime import datetime
 from typing import List, Optional, Tuple
 import psycopg2
 
@@ -16,8 +17,9 @@ class Database():
 
     @staticmethod
     def init_db():
-        conn = Database.get_connection()
+        conn = None
         try:
+            conn = Database.get_connection()
             with conn.cursor() as cursor:
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS images(
@@ -34,12 +36,14 @@ class Database():
         except Exception as e:
             log_error(f'Error init DB {e}')
         finally:
-            conn.close()
+            if conn:
+                conn.close()
 
     @staticmethod
     def save_image(image: Image) -> Tuple[bool, Optional[int]]:
-        conn = Database.get_connection()
+        conn = None
         try:
+            conn = Database.get_connection()
             with conn.cursor() as cursor:
                 cursor.execute('''
                     INSERT INTO images(filename, original_name, size, file_type)
@@ -53,12 +57,22 @@ class Database():
             log_error(f'Error image save to DB {e}')
             return False, None
         finally:
-            conn.close()
+            if conn:
+                conn.close()
 
     @staticmethod
-    def get_images(page: int = 1, per_page: int = Config.ITEMS_PER_PAGE) -> Tuple[List(Image), int]:
-        conn = Database.get_connection()
+    def get_images(page: int = 1, per_page: int = Config.ITEMS_PER_PAGE) -> Tuple[List[Image], int]:
+        # TODO убрать после подключения баз данных
+        if Config.DEBUG:
+            images = [
+                Image(1, '80e9dce6-6cc1-4e51-b73d-09c29f29a41e.jpg', 'photo_2025-12-08_04-33-03.jpg', 869344, datetime.now(), 'jpeg'),
+                Image(2, '9a2e845a-ff97-4ded-a013-ede6305c5a29.jpg', 'photo_2025-12-08_04-33-03 (2).jpg', 799229, datetime.now(), 'jpg')
+            ]
+            return images, 2
+
+        conn = None
         try:
+            conn = Database.get_connection()
             offset = (page - 1) * per_page
             with conn.cursor() as cursor:
                 cursor.execute('''
@@ -81,14 +95,16 @@ class Database():
                 return images, total
         except Exception as e:
             log_error(f'Error get images from DB {e}')
-            return []], 0
+            return [], 0
         finally:
-            conn.close()
+            if conn:
+                conn.close()
 
     @staticmethod
     def delete_image(image_id: int) -> Tuple[bool, Optional[str]]:
-        conn = Database.get_connection()
+        conn = None
         try:
+            conn = Database.get_connection()
             with conn.cursor() as cursor:
                 cursor.execute('''
                     SELECT filename FROM images WHERE id = %s
@@ -108,4 +124,5 @@ class Database():
             log_error(f'Error image delete from DB {e}')
             return False, None
         finally:
-            conn.close()
+            if conn:
+                conn.close()

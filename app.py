@@ -1,38 +1,42 @@
 """
 Image Server App for JavaRush
 """
-import os
-import logging
+
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import parse_qs, urlparse
-from datetime import datetime
-import uuid
 import json
 from io import BytesIO
 
-HOST = 'localhost'
-PORT = 8000
+from flask import Flask
+from flask_cors import CORS
 
-IMAGE_DIR = 'images'
-LOGS_DIR = 'logs'
-
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5Mb
-
-ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif'}
-ALOWED_MIME_TYPES = {
-    'image/jpeg',
-    'image/png',
-    'image/gif'
-}
-
-LOG_FILE = os.path.join(LOGS_DIR, 'app.log')
+from config import Config
+from database import Database
+from routes import register_routes
+from utils import ensure_directories, log_error, log_info, setup_logging
 
 
+def create_app():
+    app = Flask(__name__)
+    # Setiings up Flask application
+    app.config['SEKRET_KEY'] = Config.SECRET_KEY
+    app.config['MAX_CONTENT_LENGTH'] = Config.MAX_CONTENT_LENGTH
+
+    CORS(app)
+
+    with app.app_context():
+        ensure_directories()
+        setup_logging()
+        # Database.init_db()
+
+    register_routes(app)
+    return app
 
 
-
-
-
+if __name__ == '__main__':
+    log_info('Image server starting')
+    app = create_app()
+    log_info('Image server started')
+    app.run(debug=Config.DEBUG)
 
 
 # Прасинг multipart/form-data
@@ -101,7 +105,7 @@ class ImageServerHandler(BaseHTTPRequestHandler):
                     f'Файл слишком большой. Максимум: {format_file_size(MAX_FILE_SIZE)}'
                 )
                 return
-            len
+            
             body = self.rfile.read(content_length)
             
             filename, file_content = parse_multipart_form_data(content_type, body)
@@ -185,10 +189,10 @@ class ImageServerHandler(BaseHTTPRequestHandler):
         self.send_json_response(status_code, error_data)
 
 
-if __name__ == '__main__':
-    ensure_directories()
-    setup_logging()
-    server_adress = (HOST, PORT)
-    httpd = HTTPServer(server_adress, ImageServerHandler)
-    httpd.serve_forever()  
+# if __name__ == '__main__':
+#     ensure_directories()
+#     setup_logging()
+#     server_adress = (HOST, PORT)
+#     httpd = HTTPServer(server_adress, ImageServerHandler)
+#     httpd.serve_forever()  
 

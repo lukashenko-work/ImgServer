@@ -17,8 +17,8 @@ from utils import ensure_directories, log_error, log_info, setup_logging
 
 def create_app():
     app = Flask(__name__)
-    # Setiings up Flask application
-    app.config['SEKRET_KEY'] = Config.SECRET_KEY
+    # Settings up Flask application
+    app.config['SECRET_KEY'] = Config.SECRET_KEY
     app.config['MAX_CONTENT_LENGTH'] = Config.MAX_CONTENT_LENGTH
 
     CORS(app)
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     app.run(debug=Config.DEBUG)
 
 
-# Прасинг multipart/form-data
+# Парсинг multipart/form-data
 def parse_multipart_form_data(content_type, body):
     """
     Парсит multipart/form-data и извлекает файл

@@ -36,7 +36,7 @@ def log_info(message):
 
 def log_error(message):
     """Логирует сообщение об ошибке"""
-    logging.info(message)
+    logging.error(message)
 
 
 def log_success(message):
@@ -47,7 +47,8 @@ def log_success(message):
 # Files and folders utils
 def ensure_directories():
     """Создает нелобходимые папки если их нет"""
-    log_info('Checking/creating directories')
+    # FIXME почему-то любое логирование до настройки логера ломает логирование
+    # log_info('Checking/creating directories') 
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
     os.makedirs(Config.LOGS_FOLDER, exist_ok=True)
     os.makedirs(Config.BACKUP_FOLDER, exist_ok=True)

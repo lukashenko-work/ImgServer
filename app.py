@@ -5,6 +5,7 @@ Image Server App for JavaRush
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 from io import BytesIO
+import logging
 
 from flask import Flask
 from flask_cors import CORS
@@ -12,7 +13,24 @@ from flask_cors import CORS
 from config import Config
 from database import Database
 from routes import register_routes
-from utils import ensure_directories, log_error, log_info, setup_logging
+from utils import ensure_directories, log_error, log_info
+
+
+def setup_logging():
+    """Настройка логирования"""
+    log_format = '[%(asctime)s] %(levelname)s: %(message)s'
+    date_format = '%Y-%m-%d %H:%M:%S'
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format=log_format,
+        datefmt=date_format,
+        handlers=[
+            logging.FileHandler(Config.LOG_FILE_PATH, encoding='utf-8'),
+            logging.StreamHandler()
+        ]
+    )
+    log_info(f'Logging started at {Config.LOG_FILE_PATH}')
 
 
 def create_app():
@@ -26,6 +44,7 @@ def create_app():
     with app.app_context():
         ensure_directories()
         setup_logging()
+        # TODO раскомментировать
         # Database.init_db()
 
     register_routes(app)
@@ -33,9 +52,8 @@ def create_app():
 
 
 if __name__ == '__main__':
-    log_info('Image server starting')
     app = create_app()
-    log_info('Image server started')
+    log_info('Image server starting')
     app.run(debug=Config.DEBUG)
 
 

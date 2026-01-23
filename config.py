@@ -46,3 +46,4 @@ class Config:
 
     # Backups settings
     BACKUP_FOLDER = 'backup'
+    BACKUP_TIMESTAMP_FORMAT = '%Y_%m_%d_%H_%M_%S'

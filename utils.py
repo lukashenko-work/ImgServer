@@ -12,6 +12,7 @@ from config import Config
 # Logging
 def setup_logging():
     """Настройка логирования"""
+    ensure_logs_dir()
     log_format = '[%(asctime)s] %(levelname)s: %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'
 
@@ -45,13 +46,23 @@ def log_success(message):
 
 
 # Files and folders utils
-def ensure_directories():
-    """Создает нелобходимые папки если их нет"""
+def ensure_logs_dir():
+    """Creating logs dir"""
     # FIXME почему-то любое логирование до настройки логера ломает логирование
     # log_info('Checking/creating directories') 
-    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
     os.makedirs(Config.LOGS_FOLDER, exist_ok=True)
+
+
+def ensure_backups_dir():
+    """Creating backups dir"""
     os.makedirs(Config.BACKUP_FOLDER, exist_ok=True)
+
+
+def ensure_directories():
+    """Создает нелобходимые папки если их нет"""
+    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
+    ensure_logs_dir()
+    ensure_backups_dir()
 
 
 # Files validation
@@ -71,7 +82,7 @@ def is_valid_file_size(file_size):
     return 0 < file_size <= Config.MAX_CONTENT_LENGTH
 
 
-def format_file_size(size_bytes):
+def format_file_size(size_bytes: int) -> str:
     """Формирует размер файла для отображения"""
     if size_bytes < 1024:
         return f'{size_bytes} B'

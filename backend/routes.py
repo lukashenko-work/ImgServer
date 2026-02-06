@@ -1,8 +1,8 @@
 """Routes module"""
 
-from datetime import datetime
-from flask import render_template, request, jsonify, url_for  # , redirect, send_from_directory
-from werkzeug.utils import secure_filename
+# from datetime import datetime
+from flask import render_template, request, jsonify  # , url_for, redirect, send_from_directory
+# from werkzeug.utils import secure_filename
 
 from config import Config
 from database import Database
@@ -24,16 +24,17 @@ def register_routes(app):
     def upload_image():
         if 'file' not in request.files:
             return jsonify({'error': 'File not found'}, 400)
-        
+
         file = request.files['file']
         filename = file.filename
-        
+
         if not filename or filename == '':
             return jsonify({'error': 'File not found'}, 400)
 
         if not is_allowed_extension(filename):
-            return jsonify({'error': 'Unsupported fyile type'}, 400)
+            return jsonify({'error': 'Unsupported file type'}, 400)
 
+        new_filename = None
         try:
             file_content = file.read()
             file_size = len(file_content)
@@ -51,22 +52,25 @@ def register_routes(app):
 
             new_filename = result
 
-            file_type = get_file_extension(filename)[1:] # убираем точку
+            file_type = get_file_extension(filename)[1:]  # убираем точку
             image = Image(
                 filename=new_filename,
-                original_name=secure_filename(filename),
+                # FIXME пока не нравится как работает secure_filename
+                # вместо имени файла "Взнос региональный (2).gif" вернула "2.gif"
+                # original_name=secure_filename(filename),
+                original_name=filename,
                 size=file_size,
                 file_type=file_type
             )
-            # TODO разкомменировать для сохранения в DB
-            success, image_id = True, 1
-            # success, image_id = Database.save_image(image)
+            success, image_id = Database.save_image(image)
 
             if not success:
-                delete_file(new_filename)
+                # Удаляем файл с диска, если не удалось сохранить в базу
+                if new_filename:
+                    delete_file(new_filename)
                 return jsonify({'error': f'Failed to save image {filename} to DB)'}, 500)
 
-            log_success(f'Image succeesfully saved {new_filename}')
+            log_success(f'Image successfully saved {new_filename} to DB and folder')
 
             return jsonify({
                 'success': True,
@@ -81,25 +85,29 @@ def register_routes(app):
                 },
             }, 201)
         except Exception as e:
-            # TODO разкомменировать для удаления в случае ошибки
-            # delete_file(new_fileName)
+            delete_file(new_filename)
             log_error(f'Failed to load image file {e}')
             return jsonify({'error': f'Failed to save file ({e})'}, 500)
 
     @app.route(Config.IMAGES_ROUTE)
     def list_images():
-        images = Database.get_images()
+        page = 1
+        images_per_page = Config.IMAGES_PER_PAGE
+        images, total = Database.get_images(page, images_per_page)
         return jsonify({
             'success': True,
-            'message': 'Image list will be here)',
-            'images': images
+            'message': 'Image list',
+            'images': images,
+            'total': total,
+            'page': page,
+            'images_per_page': images_per_page
             }, 200)
 
     @app.route(Config.DELETE_ROUTE + '/<int:image_id>')
     def delete_image(image_id: int):
-        # TODO разкомменировать для удаления из DB
-        success, filename = True, '623530da-6c14-43c4-9d5e-d38d267c802d.jpg'
-        # success, filename = Database.delete_image(image_id)
+        # TODO раскомментировать для удаления из DB
+        # success, filename = True, '623530da-6c14-43c4-9d5e-d38d267c802d.jpg'
+        success, filename = Database.delete_image(image_id)
 
         if not success:
             log_error(f'Failed to delete image file with id: {image_id}')
@@ -109,5 +117,5 @@ def register_routes(app):
 
         return jsonify({
             'success': True,
-            'message': f'Image with id: {image_id} deleted succffessfuly)'
+            'message': f'Image with id: {image_id} deleted successfully)'
             }, 200)

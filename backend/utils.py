@@ -2,9 +2,10 @@
 
 import logging
 import os
+import typing as t
 import uuid
 
-from werkzeug.utils import secure_filename
+# from werkzeug.utils import secure_filename
 
 from config import Config
 
@@ -16,10 +17,10 @@ def setup_logging():
     log_format = '[%(asctime)s] %(levelname)s: %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'
 
-    print(Config.LOG_FILE_PATH)
+    debug_level = logging.DEBUG if Config.DEBUG else logging.INFO
 
     logging.basicConfig(
-        level=logging.INFO,
+        level=debug_level,
         format=log_format,
         datefmt=date_format,
         handlers=[
@@ -27,12 +28,17 @@ def setup_logging():
             logging.StreamHandler()
         ]
     )
-    log_info(f'Logging started at {Config.LOG_FILE_PATH}')
+    log_info(f'Logging started at {Config.LOG_FILE_PATH} with level {logging.getLevelName(debug_level)}')
 
 
 def log_info(message):
     """Логирует информационное сообщение"""
     logging.info(message)
+
+
+def log_debug(message):
+    """Логирует debug сообщение"""
+    logging.debug(message)
 
 
 def log_error(message):
@@ -48,8 +54,8 @@ def log_success(message):
 # Files and folders utils
 def ensure_logs_dir():
     """Creating logs dir"""
-    # FIXME почему-то любое логирование до настройки логера ломает логирование
-    # log_info('Checking/creating directories') 
+    # FIXME почему-то любое логирование до настройки логгера ломает логирование
+    # log_info('Checking/creating directories')
     os.makedirs(Config.LOGS_FOLDER, exist_ok=True)
 
 
@@ -59,7 +65,7 @@ def ensure_backups_dir():
 
 
 def ensure_directories():
-    """Создает нелобходимые папки если их нет"""
+    """Создает необходимые папки если их нет"""
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
     ensure_logs_dir()
     ensure_backups_dir()
@@ -121,17 +127,29 @@ def validate_file(filename, file_size):
     return True, None
 
 
-def save_file(filename: str, file_content):
+def save_file(filename: str, file_content: t.Any) -> tuple[bool, str]:
+    """Сохраняет файл на диск.
+
+    Args:
+        filename (str): Оригинальное имя файла. На диск сохраняется файл с новым уникальным именем.
+        file_content (t.Any): Содержимое файла
+
+    Returns:
+        tuple[bool, str]: Возвращает новое уникальное имя на диске.
+    """
     try:
-        original_name = secure_filename(filename)
-        new_filname = generate_unique_filename(original_name)
-        file_path = os.path.join(Config.UPLOAD_FOLDER, new_filname)
+        # FIXME пока не нравится как работает secure_filename
+        # вместо имени файла "Взнос региональный (2).gif" вернула "2.gif"
+        # original_name = secure_filename(filename)
+        original_name = filename
+        new_filename = generate_unique_filename(original_name)
+        file_path = os.path.join(Config.UPLOAD_FOLDER, new_filename)
 
         with open(file_path, 'wb') as f:
             f.write(file_content)
 
-        log_success(f'Файл {new_filname} (оригинал: {original_name}) сохранен')
-        return True, new_filname
+        log_success(f'File {new_filename} (original name: {original_name}) successfully saved to folders')
+        return True, new_filename
     except Exception as e:
         error_msg = f'Ошибка сохранения файла: {e}'
         log_error(error_msg)
@@ -143,6 +161,7 @@ def delete_file(filename):
         file_path = os.path.join(Config.UPLOAD_FOLDER, filename)
         if os.path.exists(file_path):
             os.remove(file_path)
+            log_success(f'Image {filename} deleted from folder successfully')
             return True
         return False
     except Exception as e:

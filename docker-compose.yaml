@@ -1,0 +1,66 @@
+name: image_server
+
+services:
+
+  postgres:
+    container_name: img_srv_pgsql
+    image: postgres:18-alpine
+    environment:
+      - POSTGRES_DB=images_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - img_srv_pgdata_volume:/var/lib/postgresql # Persists the data
+    ports:
+      - "5432:5432"
+    networks:
+      - img_srv_network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      # test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s # Optional: Gives the container time to start up before healthchecks begin
+
+  app:
+    container_name: img_srv_python_app
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./images:/app/images
+      - ./logs:/app/logs
+    networks:
+      - img_srv_network
+    depends_on:
+      - postgres
+
+    # depends_on:
+    #   postgres:
+    #     condition: service_healthy
+
+  nginx:
+    container_name: img_srv_nginx
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend:/usr/share/nginx/frontend:ro
+      - ./images:/usr/share/nginx/images:ro
+    # restart: unless-stopped
+    networks:
+      - img_srv_network
+    depends_on:
+      - app
+
+
+volumes:
+  img_srv_pgdata_volume:
+    name: img_srv_pgdata_volume
+
+networks:
+  img_srv_network:
+    name: img_srv_network # Explicitly set the name
+    driver: bridge

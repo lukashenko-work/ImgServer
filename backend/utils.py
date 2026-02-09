@@ -5,8 +5,6 @@ import os
 import typing as t
 import uuid
 
-# from werkzeug.utils import secure_filename
-
 from config import Config
 
 
@@ -39,6 +37,11 @@ def log_info(message):
 def log_debug(message):
     """Логирует debug сообщение"""
     logging.debug(message)
+
+
+def log_warning(message):
+    """Логирует warning сообщение"""
+    logging.warning(message)
 
 
 def log_error(message):

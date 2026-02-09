@@ -5,7 +5,7 @@ Image Server App for JavaRush
 # from http.server import HTTPServer, BaseHTTPRequestHandler
 # import json
 # from io import BytesIO
-import logging
+# import logging
 
 from flask import Flask
 from flask_cors import CORS
@@ -13,24 +13,24 @@ from flask_cors import CORS
 from config import Config
 from database import Database
 from routes import register_routes
-from utils import ensure_directories, log_error, log_info, setup_logging
+from utils import ensure_directories, log_info, setup_logging  # , log_error
 
 
-def setup_logging_():
-    """Настройка логирования"""
-    log_format = '[%(asctime)s] %(levelname)s: %(message)s'
-    date_format = '%Y-%m-%d %H:%M:%S'
+# def setup_logging_():
+#     """Настройка логирования"""
+#     log_format = '[%(asctime)s] %(levelname)s: %(message)s'
+#     date_format = '%Y-%m-%d %H:%M:%S'
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format=log_format,
-        datefmt=date_format,
-        handlers=[
-            logging.FileHandler(Config.LOG_FILE_PATH, encoding='utf-8'),
-            logging.StreamHandler()
-        ]
-    )
-    log_info(f'Logging started at {Config.LOG_FILE_PATH}')
+#     logging.basicConfig(
+#         level=logging.INFO,
+#         format=log_format,
+#         datefmt=date_format,
+#         handlers=[
+#             logging.FileHandler(Config.LOG_FILE_PATH, encoding='utf-8'),
+#             logging.StreamHandler()
+#         ]
+#     )
+#     log_info(f'Logging started at {Config.LOG_FILE_PATH}')
 
 
 def create_app():
@@ -53,44 +53,44 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     log_info('Image server starting')
-    app.run(debug=Config.DEBUG)
+    app.run(host='0.0.0.0', port=8000, debug=Config.DEBUG)
 
 
 # Парсинг multipart/form-data
-def parse_multipart_form_data(content_type, body):
-    """
-    Парсит multipart/form-data и извлекает файл
-    Возвращает (filename, file_content) или (None, None) при ошибке
-    :param content_type: Description
-    :param body: Description
-    """
-    try:
-        if 'boundary=' not in content_type:
-            return None, None
+# def parse_multipart_form_data(content_type, body):
+#     """
+#     Парсит multipart/form-data и извлекает файл
+#     Возвращает (filename, file_content) или (None, None) при ошибке
+#     :param content_type: Description
+#     :param body: Description
+#     """
+#     try:
+#         if 'boundary=' not in content_type:
+#             return None, None
 
-        boundary = content_type.split('boundary=')[1].strip()
-        boundary_bytes = f'--{boundary}'.encode()
+#         boundary = content_type.split('boundary=')[1].strip()
+#         boundary_bytes = f'--{boundary}'.encode()
 
-        parts = body.split(boundary_bytes)
-        for part in parts:
-            if b'Content-Disposition' in part:
-                disposition_line = part.split(b'\r\n')[1].decode('utf-8')
-                if 'filename' in disposition_line:
-                    # Парсим имя файла
-                    filename_start = disposition_line.find('filename="') + 10
-                    filename_end = disposition_line.find('"', filename_start)
-                    filename = disposition_line[filename_start:filename_end]
+#         parts = body.split(boundary_bytes)
+#         for part in parts:
+#             if b'Content-Disposition' in part:
+#                 disposition_line = part.split(b'\r\n')[1].decode('utf-8')
+#                 if 'filename' in disposition_line:
+#                     # Парсим имя файла
+#                     filename_start = disposition_line.find('filename="') + 10
+#                     filename_end = disposition_line.find('"', filename_start)
+#                     filename = disposition_line[filename_start:filename_end]
 
-                    # Извлекаем содержимое файла
-                    content_start = part.find(b'\r\n\r\n') + 4
-                    content_end = part.rfind(b'\r\n')
-                    file_content = part[content_start:content_end]
+#                     # Извлекаем содержимое файла
+#                     content_start = part.find(b'\r\n\r\n') + 4
+#                     content_end = part.rfind(b'\r\n')
+#                     file_content = part[content_start:content_end]
 
-                    return filename, file_content
-        return None, None
-    except Exception as e:
-        log_error(f'Ошибка парсинга multipart {e}')
-        return None, None
+#                     return filename, file_content
+#         return None, None
+#     except Exception as e:
+#         log_error(f'Ошибка парсинга multipart {e}')
+#         return None, None
 
 
 # class ImageServerHandler(BaseHTTPRequestHandler):
@@ -174,7 +174,7 @@ def parse_multipart_form_data(content_type, body):
 #             },
 #             'info': {
 #                 'max_file_size': '5 Mb',
-#                 'allwed_formats': list(ALLOWED_EXTENSIONS)
+#                 'allowed_formats': list(ALLOWED_EXTENSIONS)
 #             }
 #         }
 #         self.send_json_response(200, message_data)

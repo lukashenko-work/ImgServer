@@ -1,7 +1,7 @@
 """Routes module"""
 
 # from datetime import datetime
-from flask import render_template, request, jsonify  # , url_for, redirect, send_from_directory
+from flask import Flask, render_template, request, jsonify  # , url_for, redirect, send_from_directory
 # from werkzeug.utils import secure_filename
 
 from config import Config
@@ -10,7 +10,7 @@ from models import Image
 from utils import delete_file, format_file_size, get_file_extension, is_allowed_extension, log_error, log_success, save_file
 
 
-def register_routes(app):
+def register_routes(app: Flask):
     """Register all routes in Flask application
 
     Args:

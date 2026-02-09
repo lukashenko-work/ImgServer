@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Images</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/images.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Upload Photos</h1>
+            <h2>Upload selfies, memes, or any fun pictures here.</h2>
+        </div>
+        <div class="content">
+            <div class="choose">
+                <a class="upload-link" href="upload_form.html">Upload</a>
+                <a class="images-link" href="images.html">Images</a>
+            </div>
+        </div>
+        <!-- Image list -->
+        <div class="images-container">
+            <div class="images-header">
+                <div class="header-name">Name</div>
+                <div class="header-url">Url</div>
+                <div class="header-delete">Delete</div>
+            </div>
+            <div class="images-list" id="imagesList">
+                <!--Динамический список изображений через JavaScript-->
+            </div>
+            <div class="emapty-state" id="emptyState" style="display: none;">
+                <p>No images uploaded yet</p>
+                <a href="upload_form.html">Upload your first image</a>
+            </div>
+
+        </div>
+    </div>
+    <script src="js/storage.js"></script>
+    <script src="js/images.js"></script>
+</body>
+</html>

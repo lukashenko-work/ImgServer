@@ -83,9 +83,10 @@ class Config:
     if not ALLOWED_MIME_TYPES:
         ALLOWED_MIME_TYPES = {'image/jpeg', 'image/png', 'image/gif'}
 
-    # Server settings
-    HOST = os.getenv('HOST', 'localhost')
-    PORT = get_int_env_var('PORT', 8000)
+    # Flask settings
+    FLASK_HOST = os.getenv('FLASK_HOST', 'localhost')
+    FLASK_PORT = get_int_env_var('FLASK_PORT', 8000)
+    FLASK_DEBUG = bool(os.getenv('FLASK_DEBUG', 'True'))
 
     # Logging settings
     LOGS_FOLDER = os.getenv('LOGS_FOLDER', 'logs')

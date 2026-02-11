@@ -53,7 +53,8 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     log_info('Image server starting')
-    app.run(host='0.0.0.0', port=8000, debug=Config.DEBUG)
+    # app.run(host='0.0.0.0', port=8000, debug=Config.DEBUG)
+    app.run(host=Config.FLASK_HOST, port=Config.FLASK_PORT, debug=Config.FLASK_DEBUG)
 
 
 # Парсинг multipart/form-data

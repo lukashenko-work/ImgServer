@@ -100,8 +100,10 @@ def register_routes(app: Flask):
             'images': images,
             'total': total,
             'page': page,
-            'images_per_page': images_per_page
-            }, 200)
+            'images_per_page': images_per_page,
+            'url': f'/{Config.UPLOAD_FOLDER}/',
+            'delete_url': f'{Config.DELETE_ROUTE}/'
+        }, 200)
 
     @app.route(Config.DELETE_ROUTE + '/<int:image_id>')
     def delete_image(image_id: int):

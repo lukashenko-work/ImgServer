@@ -45,7 +45,7 @@ body {
 
 .images-header {
   display: grid;
-  grid-template-columns:3fr 3fr 1fr;
+  grid-template-columns:3fr 3fr 1fr 1fr;
   gap: 20px;
   padding: 16px 20px;
   font-family: var(--font-family);
@@ -55,7 +55,7 @@ body {
   background-color: #eef1f8;
 }
 
-.header-name, .header-url {
+.header-name, .header-url, .header-size {
   text-align: left;
 }
 
@@ -69,7 +69,7 @@ body {
 
 .image-item {
   display: grid;
-  grid-template-columns: 3fr 3fr 1fr;
+  grid-template-columns: 3fr 3fr 1fr 1fr;
   gap: 20px;
   padding: 8px 20px;
   font-family: var(--font-family);
@@ -90,7 +90,16 @@ body {
   font-family: var(--font-family);
   font-weight: 400;
   font-size: 14px;
-  line-height: 143%;
+  /* line-height: 143%; */
+  color: #0b0b0b;
+  text-align: left;
+}
+
+.image-size {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 14px;
+  /* line-height: 143%; */
   color: #0b0b0b;
   text-align: left;
 }

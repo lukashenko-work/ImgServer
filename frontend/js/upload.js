@@ -60,23 +60,62 @@ async function handleFile(file) {
     showStatus('Uploading...', 'info');
 
     try {
-        const base64 = await fileToBase64(file);
-        const success = saveImage(file.name, file.name, base64, file.size);
-        url = file.name;
+        const formData = new FormData();
+        formData.append('file', file);
 
-        if (success) {
-            showStatus('Upload successful!', 'success');
-            
+        // TODO replace '/api/upload' with environment variable
+        //const response = await fetch('/api/upload', {
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json()) // Parse the JSON response
+        .then(data => {
+            console.log(data);
+            image = data[0].image;
             const urlLabel = document.getElementById("currentUploadLabel");
             if (urlLabel) {
-                urlLabel.textContent = cutLongName(url, 50);
-                urlLabel.title = url;
+                const host = location.protocol.concat("//").concat(window.location.host);
+                url = host + image.url;
+                filename = image.original_name;
+                urlLabel.textContent = cutLongName(filename, 50);
+                urlLabel.title = filename;
                 currentUrl = url;
             }
             document.getElementById("fileInput").value = "";
-        } else {
-            showStatus("Upload failed. Please try again.", "error");
-        }
+            showStatus('Upload successful!', 'success');
+        }) // Handle the response data
+        .catch(error => {
+            alert('Error:', error)
+            showStatus("Upload failed " + error.message, "error")
+        }); // Handle any errors
+        // return;
+        // const result = await response.json();
+        // console.log(result);
+        // alert(response.ok);
+        // if (response.ok) {
+        //     alert(result.image.id);
+        // }
+
+        // return;
+
+        // const base64 = await fileToBase64(file);
+        // const success = saveImage(file.name, file.name, base64, file.size);
+        // url = file.name;
+
+        // if (success) {
+        //     showStatus('Upload successful!', 'success');
+            
+        //     const urlLabel = document.getElementById("currentUploadLabel");
+        //     if (urlLabel) {
+        //         urlLabel.textContent = cutLongName(url, 50);
+        //         urlLabel.title = url;
+        //         currentUrl = url;
+        //     }
+        //     document.getElementById("fileInput").value = "";
+        // } else {
+        //     showStatus("Upload failed. Please try again.", "error");
+        // }
     }
     catch (error) {
         showStatus("Upload failed " + error.message, "error");

@@ -69,11 +69,13 @@ function createImageItemAPI(image) {
     item.className = 'image-item';
     item.dataset.id = image.id;
     
-    const shortName = cutLongName(image.original_name, 34);
+    const shortName = cutLongName(image.original_name, 29);
     // const url = image.url + image.filename;
     const url = image.url + image.filename;
     const delete_url = image.delete_url + image.id;
     const shortUrl = cutLongName(url, 39);
+    const original_name = image.original_name;
+
 
     // const icon = getFileIconAPI(image.file_type);
     // <span class="image-icon">${icon}</span>
@@ -81,16 +83,16 @@ function createImageItemAPI(image) {
     item.innerHTML = `
     <div class="image-name">
         <span class="image-icon"><img src="images/photo.png" alt="Photo"></span>
-        <span title="${image.original_name}">${shortName}</span>
+        <span title="${original_name}">${shortName}</span>
     </div>
     <div class="image-url-wrapper">
-        <a href="${url}" class="image-url" target="_blank" title="${image.original_name}" download="${image.original_name}">${shortName}</a>
+        <a href="${url}" class="image-url" target="_blank" title="${original_name}" download="${original_name}">${shortName}</a>
     </div>
     <div class="image-size">
         <span title="${image.size}">${image.size.toLocaleString('ru-RU', {maximumFractionDigits: 0})}</span>
     </div>
     <div class="image-delete">
-        <a href="${delete_url}" class="delete-image-url" title="Delete image"><img src="images/delete.png" alt="Delete image"></a>
+        <a href="${delete_url}" class="delete-image-url" title="Delete image ${original_name}"><img src="images/delete.png" alt="Delete image"></a>
     </div>
     `
     // <button class="delete-button" onclick="deleteImageById(${image.id}, '${image.original_name}')" title="Delete">${DELETE_ICON}</button>

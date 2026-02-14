@@ -24,5 +24,5 @@ class Image:
             'size': self.size,
             'upload_time': self.upload_time,
             'file_type': self.file_type,
-            'url': f'/{Config.UPLOAD_FOLDER}/{self.filename}'
+            'url': f'/{Config.DOWNLOAD_ROUTE}/{self.filename}'
         }        

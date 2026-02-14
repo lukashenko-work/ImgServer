@@ -55,13 +55,15 @@ class Config:
     DEBUG = bool(os.getenv('DEBUG', 'True'))
 
     # Directories
-    UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'images')
+    UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'uploads')
 
     # Web routes
     ROOT_ROUTE = os.getenv('ROOT_ROUTE', '/api/')
     UPLOAD_ROUTE = ROOT_ROUTE + os.getenv('UPLOAD_ROUTE', 'upload')
     DELETE_ROUTE = ROOT_ROUTE + os.getenv('DELETE_ROUTE', 'delete')
     IMAGES_ROUTE = ROOT_ROUTE + os.getenv('IMAGES_ROUTE', 'images')
+    STATIC_ROOT_ROUTE = os.getenv('STATIC_ROOT_ROUTE', '/')
+    DOWNLOAD_ROUTE = STATIC_ROOT_ROUTE + os.getenv('DOWNLOAD_ROUTE', 'download')
 
     # Images constraints
     # Max image file size

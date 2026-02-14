@@ -11,8 +11,7 @@ logs/
 *.log
 
 # Images for this project
-images/
-!frontend/images
+uploads/
 
 # Distribution / packaging
 .Python

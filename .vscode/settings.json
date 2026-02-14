@@ -12,13 +12,18 @@
     "a-file-icon-vscode.folderTheme": "specific",
     "a-file-icon-vscode.opacity": 1,
     "a-file-icon-vscode.saturation": 1,
+    "liveServer.settings.host": "localhost",
     "liveServer.settings.root": "./frontend",
     "liveServer.settings.mount": [
-        ["/images", "./images"]
+        ["/download", "./uploads"]
     ],
     "liveServer.settings.proxy": {
         "enable": true, // set to true to enable the feature
         "baseUri": "/api", // the base path you want to proxy from your frontend (e.g., a fetch request to "/api/data")
         "proxyUri": "http://127.0.0.1:8000/api" // the actual URL of your Python API endpoint
-    }
+    },
+    "liveServer.settings.ignoreFiles": [
+        // "**/node_modules/**",
+        "./uploads"
+    ]
 }

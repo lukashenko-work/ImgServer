@@ -80,7 +80,7 @@ def register_routes(app: Flask):
                     'filename': new_filename,
                     'original_name': file.filename,
                     'size': format_file_size(file_size),
-                    'url': f'/{Config.UPLOAD_FOLDER}/{new_filename}',
+                    'url': f'{Config.DOWNLOAD_ROUTE}/{new_filename}',
                     'delete_url': f'{Config.DELETE_ROUTE}/{image_id}'
                 },
             }, 201)
@@ -101,7 +101,7 @@ def register_routes(app: Flask):
             'total': total,
             'page': page,
             'images_per_page': images_per_page,
-            'url': f'/{Config.UPLOAD_FOLDER}/',
+            'url': f'{Config.DOWNLOAD_ROUTE}/',
             'delete_url': f'{Config.DELETE_ROUTE}/'
         }, 200)
 

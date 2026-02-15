@@ -40,7 +40,7 @@ body {
   max-width: 806px;
   margin-left: auto;
   margin-right: auto;
-  height: 282px;
+  /* height: 282px; */
 }
 
 .images-header {
@@ -106,4 +106,8 @@ body {
 
 .image-delete {
   text-align: center;
+}
+
+.error-state {
+  color: red;
 }

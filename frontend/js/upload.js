@@ -64,15 +64,18 @@ async function handleFile(file) {
         formData.append('file', file);
 
         // TODO replace '/api/upload' with environment variable
-        //const response = await fetch('/api/upload', {
-        fetch('/api/upload', {
+        const response = await fetch('/api/upload', {
             method: 'POST',
             body: formData
-        })
-        .then(response => response.json()) // Parse the JSON response
-        .then(data => {
-            console.log(data);
+        });
+
+        const data = await response.json();
+
+        console.log(data);
+
+        if (response.ok) {
             image = data[0].image;
+            message = data[0].message;
             const urlLabel = document.getElementById("currentUploadLabel");
             if (urlLabel) {
                 const host = location.protocol.concat("//").concat(window.location.host);
@@ -83,20 +86,37 @@ async function handleFile(file) {
                 currentUrl = url;
             }
             document.getElementById("fileInput").value = "";
-            showStatus('Upload successful!', 'success');
-        }) // Handle the response data
-        .catch(error => {
-            alert('Error:', error)
-            showStatus("Upload failed " + error.message, "error")
-        }); // Handle any errors
-        // return;
-        // const result = await response.json();
-        // console.log(result);
-        // alert(response.ok);
-        // if (response.ok) {
-        //     alert(result.image.id);
-        // }
-
+            showStatus(message, 'success');
+            // showStatus('Upload successful!', 'success');
+        } else {
+            message = data.error;
+            showStatus(message, 'error');
+        }
+        // fetch('/api/upload', {
+        //     method: 'POST',
+        //     body: formData
+        // })
+        // .then(response => response.json()) // Parse the JSON response
+        // .then(data => {
+        //     console.log(data);
+        //     image = data[0].image;
+        //     const urlLabel = document.getElementById("currentUploadLabel");
+        //     if (urlLabel) {
+        //         const host = location.protocol.concat("//").concat(window.location.host);
+        //         url = host + image.url;
+        //         filename = image.original_name;
+        //         urlLabel.textContent = cutLongName(filename, 50);
+        //         urlLabel.title = filename;
+        //         currentUrl = url;
+        //     }
+        //     document.getElementById("fileInput").value = "";
+        //     showStatus('Upload successful!', 'success');
+        // }) // Handle the response data
+        // .catch(error => {
+        //     alert('Error:', error)
+        //     showStatus("Upload failed " + error.message, "error")
+        // }); // Handle any errors
+        
         // return;
 
         // const base64 = await fileToBase64(file);
@@ -116,8 +136,7 @@ async function handleFile(file) {
         // } else {
         //     showStatus("Upload failed. Please try again.", "error");
         // }
-    }
-    catch (error) {
+    } catch (error) {
         showStatus("Upload failed " + error.message, "error");
     }
 }

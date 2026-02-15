@@ -23,16 +23,16 @@ def register_routes(app: Flask):
     @app.route(Config.UPLOAD_ROUTE, methods=['POST'])
     def upload_image():
         if 'file' not in request.files:
-            return jsonify({'error': 'File not found'}, 400)
+            return jsonify({'error': 'File not found', 'code': 400}), 400
 
         file = request.files['file']
         filename = file.filename
 
         if not filename or filename == '':
-            return jsonify({'error': 'File not found'}, 400)
+            return jsonify({'error': 'File not found', 'code': 400}), 400
 
         if not is_allowed_extension(filename):
-            return jsonify({'error': 'Unsupported file type'}, 400)
+            return jsonify({'error': 'Unsupported file type', 'code': 400}), 400
 
         new_filename = None
         try:
@@ -42,13 +42,13 @@ def register_routes(app: Flask):
             if file_size > Config.MAX_CONTENT_LENGTH:
                 max_size_formatted = format_file_size(Config.MAX_CONTENT_LENGTH)
                 actual_size_formatted = format_file_size(file_size)
-                return jsonify({'error': f'File too big ({actual_size_formatted}). Max file size {max_size_formatted}'},
-                               400)
+                return jsonify({'error': f'File too big ({actual_size_formatted}). Max file size {max_size_formatted}',
+                                'code': 400}), 400
 
             success, result = save_file(filename, file_content)
 
             if not success:
-                return jsonify({'error': f'Failed to save file ({result})'}, 500)
+                return jsonify({'error': f'Failed to save file ({result})', 'code': 500}), 500
 
             new_filename = result
 
@@ -68,7 +68,8 @@ def register_routes(app: Flask):
                 # Удаляем файл с диска, если не удалось сохранить в базу
                 if new_filename:
                     delete_file(new_filename)
-                return jsonify({'error': f'Failed to save image {filename} to DB)'}, 500)
+                log_error(f'Failed to save image {filename} to DB')
+                return jsonify({'error': f'Failed to save image {filename} to DB', 'code': 500}), 500
 
             log_success(f'Image successfully saved {new_filename} to DB and folder')
 
@@ -83,27 +84,30 @@ def register_routes(app: Flask):
                     'url': f'{Config.DOWNLOAD_ROUTE}/{new_filename}',
                     'delete_url': f'{Config.DELETE_ROUTE}/{image_id}'
                 },
-            }, 201)
+                'code': 201}), 201
         except Exception as e:
             delete_file(new_filename)
             log_error(f'Failed to load image file {e}')
-            return jsonify({'error': f'Failed to save file ({e})'}, 500)
+            return jsonify({'error': f'Failed to save file ({e})', 'code': 500}), 500
 
     @app.route(Config.IMAGES_ROUTE)
     def list_images():
         page = 1
         images_per_page = Config.IMAGES_PER_PAGE
         images, total = Database.get_images(page, images_per_page)
-        return jsonify({
-            'success': True,
-            'message': 'Image list',
-            'images': images,
-            'total': total,
-            'page': page,
-            'images_per_page': images_per_page,
-            'url': f'{Config.DOWNLOAD_ROUTE}/',
-            'delete_url': f'{Config.DELETE_ROUTE}/'
-        }, 200)
+        if total == -1:  # DB Error
+            return jsonify({'error': 'Failed to load images from DB', 'code': 503}), 503
+        else:
+            return jsonify({
+                'success': True,
+                'message': 'Image list',
+                'images': images,
+                'total': total,
+                'page': page,
+                'images_per_page': images_per_page,
+                'url': f'{Config.DOWNLOAD_ROUTE}/',
+                'delete_url': f'{Config.DELETE_ROUTE}/',
+                'code': 200}), 200
 
     @app.route(Config.DELETE_ROUTE + '/<int:image_id>')
     def delete_image(image_id: int):
@@ -119,5 +123,5 @@ def register_routes(app: Flask):
 
         return jsonify({
             'success': True,
-            'message': f'Image with id: {image_id} deleted successfully)'
-            }, 200)
+            'message': f'Image with id: {image_id} deleted successfully)',
+            'code': 200}), 200

@@ -66,6 +66,15 @@ class Database():
 
     @staticmethod
     def get_images(page: int = 1, per_page: int = Config.IMAGES_PER_PAGE) -> Tuple[List[Image], int]:
+        """Get paged images from DB
+
+        Args:
+            page (int, optional): _description_. Defaults to 1.
+            per_page (int, optional): _description_. Defaults to Config.IMAGES_PER_PAGE.
+
+        Returns:
+            Tuple[List[Image], int]: images array, total images (-1 when error occurred)
+        """
         # TODO убрать после подключения баз данных
         # if Config.DEBUG:
         #     images = [
@@ -103,7 +112,7 @@ class Database():
                 return images, total
         except Exception as e:
             log_error(f'Error get images from DB {e}')
-            return [], 0
+            return [], -1
         finally:
             if conn:
                 conn.close()

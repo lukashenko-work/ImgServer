@@ -11,50 +11,70 @@ function deleteImageById(id, name) {
     // TODO  Тогда надо проверять есть ли еще картинки и показывать пустой список, нет смысла
 
     deleteImage(id);
-    showImagesList();
+    getImagesFromAPI();
 }
 
-function getImagesFromAPI() {
+async function getImagesFromAPI() {
     // fetch('http://localhost:8000/api/images')
-    fetch('/api/images')
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка сети'); // Проверка статуса
-        return response.json(); // Парсинг JSON
-    })
-    .then(data => {
-        showImagesListAPI(data)
+    // TODO replace '/api/images' with environment variable
+    try {
+        showErrorBlock(false);
+        const response = await fetch('/api/images');
+        const data = await response.json();
+
         console.log(data);
-        // alert(data[0].total);
-        // alert(data[0]['images'][0]['filename']);
-        // alert(data[0]['images'][1]['filename']);
-    }) // Работа с данными
-    .catch(error => {
-        console.log('Ошибка:' + error)
-        showImagesListAPI();
-    }) // Обработка ошибок
+
+        if (response.ok) {
+            showImagesListAPI(data)
+        } else {
+            message = data.error;
+            showErrorBlock(true, message);
+        }
+    } catch (error) {
+        console.log(error);
+        showErrorBlock(true, error.message);
+    } // Обработка ошибок
+}
+
+function showEmptyBlock(show) {
+    const empty = document.getElementById("emptyState");
+    if (show) {
+        empty.style.display = "block";
+    } else {
+        empty.style.display = "none";
+    }
+}
+
+function showErrorBlock(show, message) {
+    const error = document.getElementById("errorState");
+    if (show) {
+        error.textContent = message;
+        error.style.display = "block";
+    } else {
+        error.style.display = "none";
+        error.textContent = "";
+    }
 }
 
 function showImagesListAPI(data_obj) {
     const list = document.getElementById("imagesList");
-    const empty = document.getElementById("emptyState");
-    //alert(data_obj);
-    list.innerHTML = ""
+    list.innerHTML = "";
     if (!data_obj) {
-        empty.style.display = "block";
-        return
+        showEmptyBlock(true);
+        return;
     }
 
-    const images = data_obj[0].images;
+    const images = data_obj.images;
     
     if (images.length === 0) {
-        empty.style.display = "block";
-        return
+        showEmptyBlock(true);
+        return;
     }
     
-    empty.style.display = "none";
+    showEmptyBlock(false);
 
-    const delete_url = data_obj[0].delete_url;
-    const download_url = data_obj[0].url;
+    const delete_url = data_obj.delete_url;
+    const download_url = data_obj.url;
 
     images.forEach(image => {
         image.url = download_url;
@@ -101,4 +121,4 @@ function createImageItemAPI(image) {
     return item;
 }
 
-document.addEventListener("DOMContentLoaded", getImagesFromAPI());
+document.addEventListener("DOMContentLoaded", getImagesFromAPI);

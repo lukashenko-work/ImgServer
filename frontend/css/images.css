@@ -108,6 +108,18 @@ body {
   text-align: center;
 }
 
-.error-state {
+.delete-button {
+  cursor: pointer;  
+}
+
+.status-block-success {
+  background-color: #dcdee7;
+  color: #00ff62;
+  border: 1px solid #adc0f8;
+}
+
+.status-block-error {
+  background-color: #dcdee7;
   color: red;
+  border: 1px solid #adc0f8;
 }

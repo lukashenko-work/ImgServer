@@ -3,22 +3,38 @@ CAMERA_ICON = "&#128247;";
 CAMERA_WITH_FLASH_ICON = "&#128248;";
 VIDEO_ICON = "&#127909;";
 
-function deleteImageById(id, name) {
+async function deleteImageById(delete_url) {
+    try {
+        const response = await fetch(delete_url);
+        const data = await response.json();
+
+        console.log(data);
+
+        if (response.ok) {
+            showStatus(data.message, 'success');
+            getImagesFromAPI();
+        } else {
+            message = data.error;
+            showStatus(message, 'error');
+        }
+    } catch (error) {
+        console.log(error);
+        showStatus(error.message, 'error');
+    } // Обработка ошибок
+    
     // const item = document.querySelector(`[data-id="${id}"]`);
     // if (item) {
     //     item.style.display = 'none';
     // }
     // TODO  Тогда надо проверять есть ли еще картинки и показывать пустой список, нет смысла
 
-    deleteImage(id);
-    getImagesFromAPI();
+    //deleteImage(id);
 }
 
 async function getImagesFromAPI() {
     // fetch('http://localhost:8000/api/images')
     // TODO replace '/api/images' with environment variable
     try {
-        showErrorBlock(false);
         const response = await fetch('/api/images');
         const data = await response.json();
 
@@ -28,11 +44,11 @@ async function getImagesFromAPI() {
             showImagesListAPI(data)
         } else {
             message = data.error;
-            showErrorBlock(true, message);
+            showStatus(message, 'error');
         }
     } catch (error) {
         console.log(error);
-        showErrorBlock(true, error.message);
+        showStatus(error.message, 'error');
     } // Обработка ошибок
 }
 
@@ -45,14 +61,16 @@ function showEmptyBlock(show) {
     }
 }
 
-function showErrorBlock(show, message) {
-    const error = document.getElementById("errorState");
-    if (show) {
-        error.textContent = message;
-        error.style.display = "block";
-    } else {
-        error.style.display = "none";
-        error.textContent = "";
+function showStatus(message, type) {
+    const status = document.getElementById("statusBlock");
+    if (!status) return;
+
+    status.textContent = message;
+    status.className = `status-block-${type}`;
+    status.style.display = 'block';
+
+    if (type === "success") {
+        setTimeout(() => {status.style.display = 'none'}, 5000);
     }
 }
 
@@ -112,9 +130,10 @@ function createImageItemAPI(image) {
         <span title="${image.size}">${image.size.toLocaleString('ru-RU', {maximumFractionDigits: 0})}</span>
     </div>
     <div class="image-delete">
-        <a href="${delete_url}" class="delete-image-url" title="Delete image ${original_name}"><img src="images/delete.png" alt="Delete image"></a>
+        <img src="images/delete.png" class="delete-button" alt="Delete image" title="Delete image ${original_name}" onclick="deleteImageById('${delete_url}');">
     </div>
     `
+    // <a href="deleteImageById(${delete_url})" class="delete-image-url" title="Delete image ${original_name}"><img src="images/delete.png" alt="Delete image"></a>
     // <button class="delete-button" onclick="deleteImageById(${image.id}, '${image.original_name}')" title="Delete">${DELETE_ICON}</button>
     // <a href="${delete_url}" class="delete-image-url" title="${url}">${DELETE_ICON}</a>
     

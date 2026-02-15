@@ -74,8 +74,8 @@ async function handleFile(file) {
         console.log(data);
 
         if (response.ok) {
-            image = data[0].image;
-            message = data[0].message;
+            image = data.image;
+            message = data.message;
             const urlLabel = document.getElementById("currentUploadLabel");
             if (urlLabel) {
                 const host = location.protocol.concat("//").concat(window.location.host);

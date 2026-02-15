@@ -22,6 +22,7 @@
                 <a class="upload-link" href="upload_form.html">Upload</a>
                 <a class="images-link" href="images.html">Images</a>
             </div>
+            <div id="statusBlock" class="status-block" style="display: none;"></div>
         </div>
         <!-- Image list -->
         <div class="images-container">
@@ -38,9 +39,6 @@
                 <p>No images uploaded yet</p>
                 <a href="upload_form.html">Upload your first image</a>
             </div>
-            <div class="error-state" id="errorState" style="display: none;">
-                <p>No images uploaded yet</p>
-            </div>
         </div>
     </div>
     <!-- ---#include virtual="design-by-footer.html" -->
@@ -50,7 +48,7 @@
         .then(response => response.text())
         .then(text => document.getElementById('footer-placeholder').innerHTML = text);
     </script> -->
-    <html-template data-template="./templates/footer.html"></html-template>
+    <html-template data-template="./includes/footer.html"></html-template>
     <script src="js/include-template.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/images.js"></script>

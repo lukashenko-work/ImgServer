@@ -117,11 +117,11 @@ def register_routes(app: Flask):
 
         if not success:
             log_error(f'Failed to delete image file with id: {image_id}')
-            return jsonify({'error': f'Failed to delete image file with id: {image_id}'}, 500)
+            return jsonify({'error': 'Failed to delete image', 'code': 500}), 500
 
         delete_file(filename)
 
         return jsonify({
             'success': True,
-            'message': f'Image with id: {image_id} deleted successfully)',
+            'message': 'Image deleted successfully',
             'code': 200}), 200

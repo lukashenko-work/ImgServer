@@ -14,6 +14,7 @@ class Database():
 
     @staticmethod
     def get_connection():
+        # TODO add connections pool
         log_debug(Config.DATABASE_URL)
         return psycopg2.connect(Config.DATABASE_URL)
 
@@ -65,7 +66,7 @@ class Database():
                 conn.close()
 
     @staticmethod
-    def get_images(page: int = 1, per_page: int = Config.IMAGES_PER_PAGE) -> Tuple[List[Image], int]:
+    def get_images(page: int = 0, per_page: int = Config.IMAGES_PER_PAGE) -> Tuple[List[Image], int]:
         """Get paged images from DB
 
         Args:
@@ -75,20 +76,10 @@ class Database():
         Returns:
             Tuple[List[Image], int]: images array, total images (-1 when error occurred)
         """
-        # TODO убрать после подключения баз данных
-        # if Config.DEBUG:
-        #     images = [
-        #         Image(1, '80e9dce6-6cc1-4e51-b73d-09c29f29a41e.jpg', 'photo_2025-12-08_04-33-03.jpg', \
-        # 869344, datetime.now(), 'jpeg'),
-        #         Image(2, '9a2e845a-ff97-4ded-a013-ede6305c5a29.jpg', 'photo_2025-12-08_04-33-03 (2).jpg', \
-        # 799229, datetime.now(), 'jpg')
-        #     ]
-        #     return images, 2
-
         conn = None
         try:
             conn = Database.get_connection()
-            offset = (page - 1) * per_page
+            offset = page * per_page
             with conn.cursor(cursor_factory=DictCursor) as cursor:
                 cursor.execute('''
                     SELECT * FROM images ORDER BY upload_time DESC LIMIT %s OFFSET %s

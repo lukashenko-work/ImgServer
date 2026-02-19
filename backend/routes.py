@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, jsonify  # , url_for, redirec
 from config import Config
 from database import Database
 from models import Image
-from utils import delete_file, format_file_size, get_file_extension, is_allowed_extension, log_error, log_success, save_file
+from utils import delete_file, format_file_size, get_file_extension, is_allowed_extension, log_debug, log_error, log_success, save_file
 
 
 def register_routes(app: Flask):
@@ -91,8 +91,8 @@ def register_routes(app: Flask):
             return jsonify({'error': f'Failed to save file ({e})', 'code': 500}), 500
 
     @app.route(Config.IMAGES_ROUTE)
-    def list_images():
-        page = 1
+    @app.route(Config.IMAGES_ROUTE + '/<int:page>')
+    def list_images(page: int = 0):
         images_per_page = Config.IMAGES_PER_PAGE
         images, total = Database.get_images(page, images_per_page)
         if total == -1:  # DB Error
@@ -111,8 +111,6 @@ def register_routes(app: Flask):
 
     @app.route(Config.DELETE_ROUTE + '/<int:image_id>')
     def delete_image(image_id: int):
-        # TODO раскомментировать для удаления из DB
-        # success, filename = True, '623530da-6c14-43c4-9d5e-d38d267c802d.jpg'
         success, filename = Database.delete_image(image_id)
 
         if not success:

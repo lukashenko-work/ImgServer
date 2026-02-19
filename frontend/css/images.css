@@ -123,3 +123,7 @@ body {
   color: red;
   border: 1px solid #adc0f8;
 }
+
+.images-paging-next, .images-paging-prev {
+  cursor: pointer;  
+}

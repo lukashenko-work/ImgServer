@@ -32,6 +32,30 @@ TRUNCATE TABLE table_name RESTART IDENTITY;.
 Если данные нужно сохранить, используйте
 SELECT setval(pg_get_serial_sequence('table_name', 'id'), 1, false); для установки счетчика на 1. 
 
+Логирование запросов в Postgres
+ALTER SYSTEM SET log_statement = 'all';
+SELECT pg_reload_conf();
+
+имя
+
+yaml
+
+version: '3.8'
+services:
+  db:
+    image: postgres
+    command: ["postgres", "-c", "log_statement=all"]
+    environment:
+      POSTGRES_PASSWORD: example
+ 
+ или
+
+ docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres -c log_statement=all
+
+Вместо all используйте mod (логирование изменений данных: INSERT, UPDATE, DELETE) или ddl для уменьшения шума.
+Для точного времени запросов добавьте -c log_min_duration_statement=0 (логировать запросы дольше
+мс). 
+
 выполнение sql консоли
 docker exec -it my_pg_test psql db_test -U postgres
 или

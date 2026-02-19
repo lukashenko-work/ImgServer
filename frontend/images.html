@@ -35,6 +35,11 @@
             <div class="images-list" id="imagesList">
                 <!--Динамический список изображений через JavaScript-->
             </div>
+            <div class="images-paging" id="imagesPaging" style="display: none;">
+                <span class="images-paging-prev" title="Previous page" id="imagesPagingPrev" onclick="showPage(0);"><<</span>
+                images 1..5 of 6
+                <span class="images-paging-next" title="Next page" id="imagesPagingNext" onclick="showPage(1);">>></span>
+            </div>
             <div class="emapty-state" id="emptyState" style="display: none;">
                 <p>No images uploaded yet</p>
                 <a href="upload_form.html">Upload your first image</a>
@@ -50,7 +55,7 @@
     </script> -->
     <html-template data-template="./includes/footer.html"></html-template>
     <script src="js/include-template.js"></script>
-    <script src="js/storage.js"></script>
+    <script src="js/images_base.js"></script>
     <script src="js/images.js"></script>
 </body>
 </html>

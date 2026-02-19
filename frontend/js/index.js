@@ -2,6 +2,7 @@ const imageElement = document.getElementById('image');
 let index = 0;
 let images = [];
 
+// Меняет изображение в слайдшоу
 function changeImage() {
     if (images.length === 0) return;
     imageElement.style.opacity = 0;
@@ -12,6 +13,7 @@ function changeImage() {
     }, 800);
 }
 
+// Запускает слайдшоу после загрузки изображений
 function startSlideShow() {
     if (images.length === 0) {
         return;
@@ -20,37 +22,33 @@ function startSlideShow() {
     setInterval(changeImage, 5000);
 }
 
-function loadStaticImages() {
-    return;
+// Загружает статические изображения (из списка в images.json)
+async function loadStaticImages() {
+    try {
+        const response = await fetch('images.json');
+        const data = await response.json();
+
+        if (response.ok) {
+            images = data;
+        }
+    } catch (error) {
+        console.log(error);
+    }
 }
 
-// Показывает изображения с диска
-function showStaticImages() {
-    fetch('images.json')
-    .then(response => response.json())
-    .then(data => {
-        images = data
-        startSlideShow()
-    })
-    .catch(startSlideShow());
+// Определяет источник изображений bd/static и запускает слайдшоу
+async function showSlideImages() {
+    const data = await getImagesFromAPI();
+    const images_temp = data.images;
+    const downloadUrl = data.url;
+    if (images_temp.length > 0) {
+        for (const img of images_temp) {
+            images.push(downloadUrl + img.filename);
+        }
+    } else {
+        await loadStaticImages();
+    }
+    startSlideShow()
 }
 
-// Показываем изображения из LocalStorage
-function showStoredImages() {
-    const image = images[0];
-    alert(image.name);
-    let blob = new Blob(image.base64, {type: 'image/gif'});
-    // Создаем URL для Blob и присваиваем тегу img
-    const imgUrl = URL.createObjectURL(blob);
-    alert(imgUrl);
-    imageElement.src = imgUrl;
-}
-
-// TODO добавить отображение сохраненных изображений
-//images = getAllImages();
-
-if (images.length > 0) {
-    showStoredImages();
-} else {
-    showStaticImages();
-}
+showSlideImages();

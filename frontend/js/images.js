@@ -3,16 +3,16 @@ CAMERA_ICON = "&#128247;";
 CAMERA_WITH_FLASH_ICON = "&#128248;";
 VIDEO_ICON = "&#127909;";
 
-async function deleteImageById(delete_url) {
+async function deleteImageById(deleteUrl) {
     try {
-        const response = await fetch(delete_url);
+        const response = await fetch(deleteUrl);
         const data = await response.json();
 
         console.log(data);
 
         if (response.ok) {
             showStatus(data.message, 'success');
-            getImagesFromAPI();
+            displayImagesList();
         } else {
             message = data.error;
             showStatus(message, 'error');
@@ -31,26 +31,26 @@ async function deleteImageById(delete_url) {
     //deleteImage(id);
 }
 
-async function getImagesFromAPI() {
-    // fetch('http://localhost:8000/api/images')
-    // TODO replace '/api/images' with environment variable
-    try {
-        const response = await fetch('/api/images');
-        const data = await response.json();
+// async function getImagesFromAPI(page) {
+//     // fetch('http://localhost:8000/api/images')
+//     // TODO replace '/api/images' with environment variable
+//     let response;
+//     if (page && page > 0) {
+//         response = await fetch(`/api/images/${page}`);
+//     } else {
+//         response = await fetch('/api/images');
+//     }
+//     const data = await response.json();
 
-        console.log(data);
+//     console.log(data);
 
-        if (response.ok) {
-            showImagesListAPI(data)
-        } else {
-            message = data.error;
-            showStatus(message, 'error');
-        }
-    } catch (error) {
-        console.log(error);
-        showStatus(error.message, 'error');
-    } // Обработка ошибок
-}
+//     if (response.ok) {
+//         return data;
+//     } else {
+//         message = data.error;
+//         throw new Error(message);
+//     }
+// }
 
 function showEmptyBlock(show) {
     const empty = document.getElementById("emptyState");
@@ -58,6 +58,16 @@ function showEmptyBlock(show) {
         empty.style.display = "block";
     } else {
         empty.style.display = "none";
+    }
+}
+
+
+function hideStatus() {
+    const status = document.getElementById("statusBlock");
+    if (!status) {
+        return;
+    } else {
+        status.style.display = 'none';
     }
 }
 
@@ -83,7 +93,7 @@ function showImagesListAPI(data_obj) {
     }
 
     const images = data_obj.images;
-    
+
     if (images.length === 0) {
         showEmptyBlock(true);
         return;
@@ -99,6 +109,35 @@ function showImagesListAPI(data_obj) {
         image.delete_url = delete_url;
         list.appendChild(createImageItemAPI(image));
     });
+
+    toggleImagesPaging(data_obj);
+}
+
+function toggleImagesPaging(data) {
+    const page = data.page;
+    const perPage = data.images_per_page;
+    const firstImg = page * perPage + 1;
+    let lastImg = firstImg + perPage - 1;
+    const total = data.total;
+    if (lastImg > total) {
+        lastImg = total;
+    }
+    const pagingElm = document.getElementById("imagesPaging");
+    if (perPage >= total) {
+        pagingElm.style.display = "none";
+        return;
+    }
+    let prev = '';
+    if (page > 0) {
+        prev = `<span class="images-paging-prev" title="Previous page" id="imagesPagingPrev" onclick="showPage(${page-1});"><<</span>`;
+    }
+    const pagingImages = `images ${firstImg}..${lastImg} of ${total}`;
+    let next = '';
+    if (total > lastImg) {
+        next = `<span class="images-paging-next" title="Next page" id="imagesPagingNext" onclick="showPage(${page+1});">>></span>`;
+    }
+    pagingElm.innerHTML = prev + pagingImages + next;
+    pagingElm.style.display = "block";
 }
 
 // Создание элемента изображения
@@ -107,13 +146,12 @@ function createImageItemAPI(image) {
     item.className = 'image-item';
     item.dataset.id = image.id;
     
-    const shortName = cutLongName(image.original_name, 29);
+    const originalName = image.original_name;
+    const shortName = cutLongName(originalName, 29);
     // const url = image.url + image.filename;
     const url = image.url + image.filename;
-    const delete_url = image.delete_url + image.id;
+    const deleteUrl = image.delete_url + image.id;
     const shortUrl = cutLongName(url, 39);
-    const original_name = image.original_name;
-
 
     // const icon = getFileIconAPI(image.file_type);
     // <span class="image-icon">${icon}</span>
@@ -121,16 +159,16 @@ function createImageItemAPI(image) {
     item.innerHTML = `
     <div class="image-name">
         <span class="image-icon"><img src="images/photo.png" alt="Photo"></span>
-        <span title="${original_name}">${shortName}</span>
+        <span title="${originalName}">${shortName}</span>
     </div>
     <div class="image-url-wrapper">
-        <a href="${url}" class="image-url" target="_blank" title="${original_name}" download="${original_name}">${shortName}</a>
+        <a href="${url}" class="image-url" target="_blank" title="${originalName}" download="${originalName}">${shortName}</a>
     </div>
     <div class="image-size">
         <span title="${image.size}">${image.size.toLocaleString('ru-RU', {maximumFractionDigits: 0})}</span>
     </div>
     <div class="image-delete">
-        <img src="images/delete.png" class="delete-button" alt="Delete image" title="Delete image ${original_name}" onclick="deleteImageById('${delete_url}');">
+        <img src="images/delete.png" class="delete-button" alt="Delete image" title="Delete image ${originalName}" onclick="deleteImageById('${deleteUrl}');">
     </div>
     `
     // <a href="deleteImageById(${delete_url})" class="delete-image-url" title="Delete image ${original_name}"><img src="images/delete.png" alt="Delete image"></a>
@@ -140,4 +178,20 @@ function createImageItemAPI(image) {
     return item;
 }
 
-document.addEventListener("DOMContentLoaded", getImagesFromAPI);
+// Paging functions
+function showPage(page) {
+    displayImagesList(page);
+}
+
+async function displayImagesList(page) {
+    try {
+        const data = await getImagesFromAPI(page);
+        showImagesListAPI(data);
+        hideStatus();
+    } catch (error) {
+        console.log(error);
+        showStatus(error.message, 'error');
+    } // Обработка ошибок
+}
+
+document.addEventListener("DOMContentLoaded", displayImagesList);

@@ -38,7 +38,7 @@ async function loadStaticImages() {
 
 // Определяет источник изображений bd/static и запускает слайдшоу
 async function showSlideImages() {
-    const data = await getImagesFromAPI();
+    const data = await getRandomImages();
     const images_temp = data.images;
     const downloadUrl = data.url;
     if (images_temp.length > 0) {

@@ -15,5 +15,3 @@ COPY ./env-presets/test.env ./.env
 EXPOSE 8000
 
 CMD [ "python", "app.py" ]
-
-# добавить .env в игнор

@@ -91,10 +91,16 @@ def register_routes(app: Flask):
             return jsonify({'error': f'Failed to save file ({e})', 'code': 500}), 500
 
     @app.route(Config.IMAGES_ROUTE)
+    @app.route(Config.IMAGES_RANDOM_ROUTE)
     @app.route(Config.IMAGES_ROUTE + '/<int:page>')
     def list_images(page: int = 0):
         images_per_page = Config.IMAGES_PER_PAGE
-        images, total = Database.get_images(page, images_per_page)
+        images = []
+        total = -1
+        if request.path.endswith(Config.IMAGES_RANDOM_ROUTE):
+            images, total = Database.get_random_images()
+        else:
+            images, total = Database.get_paged_images(page, images_per_page)
         if total == -1:  # DB Error
             return jsonify({'error': 'Failed to load images from DB', 'code': 503}), 503
         else:

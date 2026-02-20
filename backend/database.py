@@ -66,24 +66,30 @@ class Database():
                 conn.close()
 
     @staticmethod
-    def get_images(page: int = 0, per_page: int = Config.IMAGES_PER_PAGE) -> Tuple[List[Image], int]:
-        """Get paged images from DB
+    def get_images(page: int = 0, per_page: int = Config.IMAGES_PER_PAGE, random: bool = False) -> Tuple[List[Image], int]:
+        """_summary_
 
         Args:
-            page (int, optional): _description_. Defaults to 1.
-            per_page (int, optional): _description_. Defaults to Config.IMAGES_PER_PAGE.
+            page (int, optional): Page for pagination. Defaults to 1.
+            per_page (int, optional): Images per page. Defaults to Config.IMAGES_PER_PAGE.
+            random (bool, optional): If True, return random images, otherwise sorting by upload_time DESC. Defaults to False.
 
         Returns:
-            Tuple[List[Image], int]: images array, total images (-1 when error occurred)
+            Tuple[List[Image], int]: _description_
         """
         conn = None
         try:
             conn = Database.get_connection()
             offset = page * per_page
             with conn.cursor(cursor_factory=DictCursor) as cursor:
-                cursor.execute('''
+                if random:
+                    cursor.execute('''
+                        SELECT * FROM images ORDER BY RANDOM() LIMIT %s
+                    ''', (per_page, ))
+                else:
+                    cursor.execute('''
                     SELECT * FROM images ORDER BY upload_time DESC LIMIT %s OFFSET %s
-                ''', (per_page, offset))
+                    ''', (per_page, offset))
                 rows = cursor.fetchall()
                 images = [
                     Image(
@@ -107,6 +113,28 @@ class Database():
         finally:
             if conn:
                 conn.close()
+
+    @staticmethod
+    def get_paged_images(page: int = 0, per_page: int = Config.IMAGES_PER_PAGE) -> Tuple[List[Image], int]:
+        """Get paged images from DB
+
+        Args:
+            page (int, optional): Page for pagination. Defaults to 1.
+            per_page (int, optional): Images per page. Defaults to Config.IMAGES_PER_PAGE.
+
+        Returns:
+            Tuple[List[Image], int]: images array, total images (-1 when error occurred)
+        """
+        return Database.get_images(page, per_page, random=False)
+
+    @staticmethod
+    def get_random_images() -> Tuple[List[Image], int]:
+        """Gets random per page images
+
+        Returns:
+            Tuple[List[Image], int]: Random images array, total images (-1 when error occurred)
+        """
+        return Database.get_images(random=True)
 
     @staticmethod
     def delete_image(image_id: int) -> Tuple[bool, Optional[str]]:

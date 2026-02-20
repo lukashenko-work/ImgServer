@@ -62,6 +62,7 @@ class Config:
     UPLOAD_ROUTE = ROOT_ROUTE + os.getenv('UPLOAD_ROUTE', 'upload')
     DELETE_ROUTE = ROOT_ROUTE + os.getenv('DELETE_ROUTE', 'delete')
     IMAGES_ROUTE = ROOT_ROUTE + os.getenv('IMAGES_ROUTE', 'images')
+    IMAGES_RANDOM_ROUTE = ROOT_ROUTE + os.getenv('IMAGES_RANDOM_ROUTE', 'random')
     STATIC_ROOT_ROUTE = os.getenv('STATIC_ROOT_ROUTE', '/')
     DOWNLOAD_ROUTE = STATIC_ROOT_ROUTE + os.getenv('DOWNLOAD_ROUTE', 'download')
 

@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, jsonify  # , url_for, redirec
 from config import Config
 from database import Database
 from models import Image
-from utils import delete_file, format_file_size, get_file_extension, is_allowed_extension, log_debug, log_error, log_success, save_file
+from utils import delete_file, format_file_size, get_file_extension, is_allowed_extension, log_error, log_success, save_file
 
 
 def register_routes(app: Flask):

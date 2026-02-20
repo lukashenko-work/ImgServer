@@ -38,16 +38,21 @@ async function loadStaticImages() {
 
 // Определяет источник изображений bd/static и запускает слайдшоу
 async function showSlideImages() {
-    const data = await getRandomImages();
-    const images_temp = data.images;
-    const downloadUrl = data.url;
-    if (images_temp.length > 0) {
-        for (const img of images_temp) {
-            images.push(downloadUrl + img.filename);
+    try {
+        const data = await getRandomImages();
+        const images_temp = data.images;
+        const downloadUrl = data.url;
+        if (images_temp.length > 0) {
+            for (const img of images_temp) {
+                images.push(downloadUrl + img.filename);
+            }
+        } else {
+            await loadStaticImages();
         }
-    } else {
+    } catch {
         await loadStaticImages();
     }
+
     startSlideShow()
 }
 

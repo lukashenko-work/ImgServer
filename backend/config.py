@@ -97,10 +97,10 @@ class Config:
     LOG_FILE_PATH = os.path.join(LOGS_FOLDER, LOG_FILE)
 
     # DB Settings
-    DATABASE_URL = os.getenv('DATABASE_URL')
+    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/images_db')
 
     # Pagination
-    IMAGES_PER_PAGE = get_int_env_var('IMAGES_PER_PAGE', 10)
+    IMAGES_PER_PAGE = get_int_env_var('IMAGES_PER_PAGE', 5)
 
     # Backups settings
     BACKUP_FOLDER = os.getenv('BACKUP_FOLDER', 'backup')

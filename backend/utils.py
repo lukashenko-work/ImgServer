@@ -101,8 +101,8 @@ def format_file_size(size_bytes: int) -> str:
         return f'{size_bytes / (1024 * 1024):.2f} MB'
 
 
-def generate_unique_filename(origina_filename):
-    ext = get_file_extension(origina_filename)
+def generate_unique_filename(original_filename):
+    ext = get_file_extension(original_filename)
     unique_id = str(uuid.uuid4())
     return f'{unique_id}{ext}'
 

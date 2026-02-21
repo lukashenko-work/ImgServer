@@ -6,7 +6,7 @@ from os import path
 import subprocess
 import sys
 from config import Config
-from utils import ensure_backups_dir, format_file_size, log_error, log_info, setup_logging
+from utils import ensure_backups_dir, format_file_size, log_debug, log_error, log_info, setup_logging
 
 
 def create_backup():
@@ -20,7 +20,7 @@ def create_backup():
         user_pass = parts[0]
         host_port_db = parts[1]
 
-        user, password = user_pass.split('":')
+        user, password = user_pass.split(':')
 
         host_port, db_name = host_port_db.split('/')
 
@@ -42,7 +42,7 @@ def create_backup():
             '-d', db_name,
             '-f', backup_file_path
         ]
-
+        log_debug(pg_dump_cmd)
         log_info(f'Creating backup to: {backup_filename}')
 
         result = subprocess.run(
@@ -76,7 +76,7 @@ def restore_backup(backup_filename: str):
         user_pass = parts[0]
         host_port_db = parts[1]
 
-        user, password = user_pass.split('":')
+        user, password = user_pass.split(':')
 
         host_port, db_name = host_port_db.split('/')
 
@@ -123,6 +123,7 @@ if __name__ == '__main__':
     ensure_backups_dir()
 
     if len(sys.argv) > 1 and sys.argv[1] == 'restore':
+        print('restore')
         if len(sys.argv) > 2:
             backup_file = sys.argv[2]
             success, result = restore_backup(backup_file)
@@ -133,6 +134,7 @@ if __name__ == '__main__':
         else:
             print('Specify file to restore')
     else:
+        print('backup')
         success, result = create_backup()
         if success:
             print(f'Backup successfully created ({result}). See logs.')

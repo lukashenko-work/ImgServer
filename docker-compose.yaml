@@ -30,6 +30,7 @@ services:
       - "8000:8000"
     volumes:
       - img_srv_shared_images:/app/uploads
+      - img_srv_logs:/app/logs
       # - ./uploads:/app/images
       # - ./logs:/app/logs
     networks:
@@ -62,6 +63,8 @@ volumes:
     name: img_srv_pgdata_volume
   img_srv_shared_images:
     name: img_srv_shared_images
+  img_srv_logs:
+    name: img_srv_logs
 
 networks:
   img_srv_network:

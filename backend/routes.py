@@ -98,9 +98,9 @@ def register_routes(app: Flask):
         images = []
         total = -1
         if request.path.endswith(Config.IMAGES_RANDOM_ROUTE):
-            images, total = Database.get_random_images()
+            images, total, page = Database.get_random_images()
         else:
-            images, total = Database.get_paged_images(page, images_per_page)
+            images, total, page = Database.get_paged_images(page, images_per_page)
         if total == -1:  # DB Error
             return jsonify({'error': 'Failed to load images from DB', 'code': 503}), 503
         else:

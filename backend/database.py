@@ -98,8 +98,8 @@ class Database():
             return False, None
 
     @staticmethod
-    def get_images(page: int = 0, per_page: int = Config.IMAGES_PER_PAGE, random: bool = False) -> Tuple[List[Image], int]:
-        """_summary_
+    def get_images(page: int = 0, per_page: int = Config.IMAGES_PER_PAGE, random: bool = False) -> Tuple[List[Image], int, int]:
+        """Get paged images from DB, common function
 
         Args:
             page (int, optional): Page for pagination. Defaults to 1.
@@ -107,11 +107,27 @@ class Database():
             random (bool, optional): If True, return random images, otherwise sorting by upload_time DESC. Defaults to False.
 
         Returns:
-            Tuple[List[Image], int]: _description_
+            Tuple[List[Image], int, int]: images array, total images (-1 when error occurred), current page
         """
         try:
+            if page < 0:
+                page = 0
             offset = page * per_page
             with Database.get_cursor() as cursor:
+                cursor.execute('SELECT COUNT(*) AS total FROM IMAGES')
+                # total = cursor.fetchone()[0]
+                total_data = cursor.fetchone()
+                # total = total_data['total'] if total_data else 0
+                total = total_data.total
+                if (total <= offset):  # Requested non-existent page (more then exists)
+                    # calculating last page
+                    mod = total % per_page
+                    pages = total // per_page
+                    if mod == 0:
+                        page = pages - 1
+                    else:
+                        page = pages
+                    offset = page * per_page
                 if random:
                     cursor.execute('''
                         SELECT * FROM images ORDER BY RANDOM() LIMIT %s
@@ -143,18 +159,13 @@ class Database():
                     )
                     for row in rows
                 ]
-                cursor.execute('SELECT COUNT(*) AS total FROM IMAGES')
-                # total = cursor.fetchone()[0]
-                total_data = cursor.fetchone()
-                # total = total_data['total'] if total_data else 0
-                total = total_data.total
-                return images, total
+                return images, total, page
         except Exception as e:
             log_error(f'Error get images from DB {e}')
-            return [], -1
+            return [], -1, 0
 
     @staticmethod
-    def get_paged_images(page: int = 0, per_page: int = Config.IMAGES_PER_PAGE) -> Tuple[List[Image], int]:
+    def get_paged_images(page: int = 0, per_page: int = Config.IMAGES_PER_PAGE) -> Tuple[List[Image], int, int]:
         """Get paged images from DB
 
         Args:
@@ -162,16 +173,16 @@ class Database():
             per_page (int, optional): Images per page. Defaults to Config.IMAGES_PER_PAGE.
 
         Returns:
-            Tuple[List[Image], int]: images array, total images (-1 when error occurred)
+            Tuple[List[Image], int, int]: images array, total images (-1 when error occurred), current page
         """
         return Database.get_images(page, per_page, random=False)
 
     @staticmethod
-    def get_random_images() -> Tuple[List[Image], int]:
+    def get_random_images() -> Tuple[List[Image], int, int]:
         """Gets random per page images
 
         Returns:
-            Tuple[List[Image], int]: Random images array, total images (-1 when error occurred)
+            Tuple[List[Image], int, int]: Random images array, total images (-1 when error occurred), current page
         """
         return Database.get_images(random=True)
 

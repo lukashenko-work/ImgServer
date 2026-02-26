@@ -2,6 +2,7 @@ DELETE_ICON = "&#128465;";
 CAMERA_ICON = "&#128247;";
 CAMERA_WITH_FLASH_ICON = "&#128248;";
 VIDEO_ICON = "&#127909;";
+let global_page = 0;
 
 async function deleteImageById(deleteUrl) {
     try {
@@ -9,10 +10,11 @@ async function deleteImageById(deleteUrl) {
         const data = await response.json();
 
         console.log(data);
+        console.log(global_page);
 
         if (response.ok) {
             showStatus(data.message, 'success');
-            displayImagesList();
+            displayImagesList(global_page);
         } else {
             message = data.error;
             showStatus(message, 'error');
@@ -115,6 +117,7 @@ function showImagesListAPI(data_obj) {
 
 function toggleImagesPaging(data) {
     const page = data.page;
+    global_page = page;
     const perPage = data.images_per_page;
     const firstImg = page * perPage + 1;
     let lastImg = firstImg + perPage - 1;
@@ -131,7 +134,7 @@ function toggleImagesPaging(data) {
     if (page > 0) {
         prev = `<span class="images-paging-prev" title="Previous page" id="imagesPagingPrev" onclick="showPage(${page-1});"><<</span>`;
     }
-    const pagingImages = `images ${firstImg}..${lastImg} of ${total}`;
+    const pagingImages = `images ${firstImg}..${lastImg} of ${total} (page ${page+1})`;
     let next = '';
     if (total > lastImg) {
         next = `<span class="images-paging-next" title="Next page" id="imagesPagingNext" onclick="showPage(${page+1});">>></span>`;

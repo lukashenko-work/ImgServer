@@ -196,7 +196,6 @@ class Database():
         Returns:
             Tuple[bool, Optional[str]]: success, message
         """
-        # TODO: save page and check if it last page and it is empty
         try:
             with Database.get_cursor() as cursor:
                 cursor.execute('''

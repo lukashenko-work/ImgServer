@@ -23,14 +23,6 @@ async function deleteImageById(deleteUrl) {
         console.log(error);
         showStatus(error.message, 'error');
     } // Обработка ошибок
-    
-    // const item = document.querySelector(`[data-id="${id}"]`);
-    // if (item) {
-    //     item.style.display = 'none';
-    // }
-    // TODO  Тогда надо проверять есть ли еще картинки и показывать пустой список, нет смысла
-
-    //deleteImage(id);
 }
 
 // async function getImagesFromAPI(page) {

@@ -90,7 +90,6 @@ class Database():
                 id_data = cursor.fetchone()
                 # image_id = id_data[0] if id_data else None
                 image_id = id_data.id if id_data else None
-                print(image_id)
                 log_success(f'Image saved to DB: {image.filename}, ID: {image_id}')
                 return True, image_id
         except Exception as e:
@@ -119,7 +118,7 @@ class Database():
                 total_data = cursor.fetchone()
                 # total = total_data['total'] if total_data else 0
                 total = total_data.total
-                if (total <= offset):  # Requested non-existent page (more then exists)
+                if total > 0 and total <= offset:  # Requested non-existent page (more then exists)
                     # calculating last page
                     mod = total % per_page
                     pages = total // per_page

@@ -2,7 +2,7 @@ DELETE_ICON = "&#128465;";
 CAMERA_ICON = "&#128247;";
 CAMERA_WITH_FLASH_ICON = "&#128248;";
 VIDEO_ICON = "&#127909;";
-let global_page = 0;
+let global_page = 0;  // For using in delete function
 
 async function deleteImageById(deleteUrl) {
     try {
@@ -10,7 +10,6 @@ async function deleteImageById(deleteUrl) {
         const data = await response.json();
 
         console.log(data);
-        console.log(global_page);
 
         if (response.ok) {
             showStatus(data.message, 'success');

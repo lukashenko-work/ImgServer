@@ -28,7 +28,7 @@ git clone https://github.com/lukashenko-work/ImgHosting.git .
 
 Сброс счетчика id
 Для сброса счетчика (последовательности) id в PostgreSQL, если таблица пуста или данные не важны, используйте
-TRUNCATE TABLE table_name RESTART IDENTITY;.
+TRUNCATE TABLE table_name RESTART IDENTITY;
 Если данные нужно сохранить, используйте
 SELECT setval(pg_get_serial_sequence('table_name', 'id'), 1, false); для установки счетчика на 1. 
 

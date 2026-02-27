@@ -26,8 +26,10 @@ services:
   app:
     container_name: img_srv_python_app
     build: ./backend
-    ports:
-      - "8000:8000"
+    # ports:
+    #   - "8000:8000"
+    expose:
+      - 8000
     volumes:
       - img_srv_shared_images:/app/uploads
       - img_srv_logs:/app/logs

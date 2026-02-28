@@ -1,6 +1,7 @@
 """database.oy"""
 
 from contextlib import contextmanager
+import sys
 from typing import List, Optional, Tuple
 from psycopg2 import pool
 from psycopg2.pool import ThreadedConnectionPool
@@ -8,9 +9,10 @@ from psycopg2.extras import NamedTupleCursor
 
 from config import Config
 from models import Image
-from utils import log_debug, log_error, log_info, log_success
+from utils import log_critical, log_debug, log_error, log_exception, log_info, log_success
 
-connection_pool: ThreadedConnectionPool
+# connection_pool: ThreadedConnectionPool
+
 # try:
 #     conn_pool = pool.ThreadedConnectionPool(1, 20, Config.DATABASE_URL)
 # except (Exception) as e:
@@ -25,6 +27,8 @@ connection_pool: ThreadedConnectionPool
 
 class Database():
 
+    connection_pool: ThreadedConnectionPool
+
     # @staticmethod
     # def get_connection():
     #     log_debug(Config.DATABASE_URL)
@@ -38,12 +42,12 @@ class Database():
         Yields:
             connection: DB connection
         """
-        conn = connection_pool.getconn()
+        conn = Database.connection_pool.getconn()
         try:
             with conn:
                 yield conn
         finally:
-            connection_pool.putconn(conn)
+            Database.connection_pool.putconn(conn)
 
     @staticmethod
     @contextmanager
@@ -53,14 +57,16 @@ class Database():
         Yields:
             cursor: DB cursor
         """
-        conn = connection_pool.getconn()
+        conn = Database.connection_pool.getconn()
         try:
             with conn:
                 with conn.cursor() as cursor:
                     yield cursor
-            # yield connection.cursor(cursor_factory=NamedTupleCursor)
+            # yield connection.cursor(cursor_factory=NamedTupleCursor). Now cursor factory specified in connection
+        except Exception as e:
+            log_error(f'Unable to get cursor from connection pool {e}')
         finally:
-            connection_pool.putconn(conn)
+            Database.connection_pool.putconn(conn)
 
     @staticmethod
     def init_db():
@@ -87,13 +93,14 @@ class Database():
     def create_connection_pool():
         """Creates ThreadedConnectionPool
         """
-        global connection_pool
         try:
             log_debug(Config.DATABASE_URL)
-            connection_pool = pool.ThreadedConnectionPool(1, 20, Config.DATABASE_URL, cursor_factory=NamedTupleCursor)
-            log_info('Connection pool created')
+            Database.connection_pool = pool.ThreadedConnectionPool(1, 20, Config.DATABASE_URL, cursor_factory=NamedTupleCursor)
+            log_info('Connection pool initialized')
         except Exception as e:
-            print('Error getting connection pool', e)
+            log_critical('FATAL ERROR: Unable to initialize connection pool. Application terminated.')
+            log_exception(e)
+            sys.exit(1)
 
     @staticmethod
     def save_image(image: Image) -> Tuple[bool, Optional[int]]:

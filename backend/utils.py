@@ -49,6 +49,16 @@ def log_error(message):
     logging.error(message)
 
 
+def log_exception(message):
+    """Логирует exception trace"""
+    logging.exception(message)
+
+
+def log_critical(message):
+    """Логирует сообщение о критической ошибке"""
+    logging.critical(message)
+
+
 def log_success(message):
     """Логирует успешное действие"""
     logging.info(f'Success: {message}')

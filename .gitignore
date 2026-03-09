@@ -157,6 +157,7 @@ activemq-data/
 # Environments
 .env
 *.env
+!backend/env-presets/example.env
 .envrc
 .venv
 env/

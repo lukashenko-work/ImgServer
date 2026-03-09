@@ -27,7 +27,8 @@ from utils import log_critical, log_debug, log_error, log_exception, log_info, l
 
 class Database():
 
-    connection_pool: ThreadedConnectionPool
+    __connection_pool: ThreadedConnectionPool
+    __str: str
 
     # @staticmethod
     # def get_connection():
@@ -42,12 +43,12 @@ class Database():
         Yields:
             connection: DB connection
         """
-        conn = Database.connection_pool.getconn()
+        conn = Database.__connection_pool.getconn()
         try:
             with conn:
                 yield conn
         finally:
-            Database.connection_pool.putconn(conn)
+            Database.__connection_pool.putconn(conn)
 
     @staticmethod
     @contextmanager
@@ -57,7 +58,7 @@ class Database():
         Yields:
             cursor: DB cursor
         """
-        conn = Database.connection_pool.getconn()
+        conn = Database.__connection_pool.getconn()
         try:
             with conn:
                 with conn.cursor() as cursor:
@@ -66,7 +67,7 @@ class Database():
         except Exception as e:
             log_error(f'Unable to get cursor from connection pool {e}')
         finally:
-            Database.connection_pool.putconn(conn)
+            Database.__connection_pool.putconn(conn)
 
     @staticmethod
     def init_db():
@@ -95,7 +96,7 @@ class Database():
         """
         try:
             log_debug(Config.DATABASE_URL)
-            Database.connection_pool = pool.ThreadedConnectionPool(1, 20, Config.DATABASE_URL, cursor_factory=NamedTupleCursor)
+            Database.__connection_pool = pool.ThreadedConnectionPool(1, 20, Config.DATABASE_URL, cursor_factory=NamedTupleCursor)
             log_info('Connection pool initialized')
         except Exception as e:
             log_critical('FATAL ERROR: Unable to initialize connection pool. Application terminated.')

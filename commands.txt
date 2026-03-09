@@ -1,4 +1,4 @@
-python -m venv .venv
+python -3.12 -m venv .venv
 Set-ExecutionPolicy Unrestricted -Force
 .\.venv\Scripts\Activate.ps1
 pip install pillow
@@ -77,3 +77,67 @@ https://habr.com/ru/articles/198982/
 docker run --rm -it busybox
 
 docker run -d --name db --network my-net postgres
+
+
+
+
+-----------------------------------------------
+развертываем в облаке
+mkdir imgserver
+git clone https://github.com/lukashenko-work/ImgServer.git .
+
+установка docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+создать папку env-presets и в ней выполнить
+nano test.env
+вставить нужные данные из example.env
+
+поправить nginx/nginx.conf
+заменить на 127.0.0.1 на IP сервера и если надо docker exec img_srv_nginx nginx -s reload
+
+docker compose up -d --build
+
+возможно, приложение запустится раньше базы, тогда его надо запустить отдельно
+
+docker start img_srv_python_app
+
+-------------------------------------------
+
+Классическая проблема прав доступа. Docker-демон работает от имени
+root, а ваш текущий пользователь (ubuntu) не имеет прав на запись в его сокет.
+Самый быстрый фикс (разово):
+Просто добавьте sudo перед командой:
+bash
+
+sudo docker compose up -d --build
+
+
+Правильный фикс (чтобы не писать sudo постоянно):
+Добавьте своего пользователя в группу docker:
+
+    Добавьте пользователя:
+    bash
+
+    sudo usermod -aG docker $USER
+
+    Примените изменения:
+    Чтобы группа обновилась без перезагрузки всей сессии, выполните:
+    bash
+
+    newgrp docker
+
+    
+    (Или просто выйдите из SSH и зайдите заново).
+    Проверьте:
+    Запустите команду снова без sudo:
+    bash
+
+    docker compose up -d --build
+
+
+Если всё равно не пускает, проверьте права на сам сокет (крайняя мера):
+bash
+
+sudo chmod 666 /var/run/docker.sock

@@ -1,11 +1,7 @@
 """
 Image Server App for JavaRush
 """
-
-# from http.server import HTTPServer, BaseHTTPRequestHandler
-# import json
-# from io import BytesIO
-# import logging
+import logging
 
 from flask import Flask
 from flask_cors import CORS
@@ -15,6 +11,10 @@ from database import Database
 from routes import register_routes
 from utils import ensure_directories, log_info, setup_logging  # , log_error
 
+# Настройка базового логирования
+
+logger = logging.getLogger(__name__)
+logger.info("Приложение запущено")
 
 # def setup_logging_():
 #     """Настройка логирования"""

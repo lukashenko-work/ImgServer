@@ -1,6 +1,8 @@
 """Routes module"""
 
 # from datetime import datetime
+import logging
+
 from flask import Flask, render_template, request, jsonify  # , url_for, redirect, send_from_directory
 # from werkzeug.utils import secure_filename
 
@@ -8,6 +10,8 @@ from config import Config
 from database import Database
 from models import Image
 from utils import delete_file, format_file_size, get_file_extension, is_allowed_extension, log_error, log_success, save_file
+
+logger = logging.getLogger(__name__)
 
 
 def register_routes(app: Flask):
@@ -68,10 +72,12 @@ def register_routes(app: Flask):
                 # Удаляем файл с диска, если не удалось сохранить в базу
                 if new_filename:
                     delete_file(new_filename)
-                log_error(f'Failed to save image {filename} to DB')
+                log_error(f'1 Failed to save image {filename} to DB')
+                logger.error(f'Failed to save image {filename} to DB')
                 return jsonify({'error': f'Failed to save image {filename} to DB', 'code': 500}), 500
 
-            log_success(f'Image successfully saved {new_filename} to DB and folder')
+            log_success(f'1 Image successfully saved {new_filename} to DB and folder')
+            logger.info(f'Image successfully saved {new_filename} to DB and folder')
 
             return jsonify({
                 'success': True,
@@ -87,7 +93,8 @@ def register_routes(app: Flask):
                 'code': 201}), 201
         except Exception as e:
             delete_file(new_filename)
-            log_error(f'Failed to load image file {e}')
+            log_error(f'1 Failed to load image file {e}')
+            logger.error(f'Failed to load image file {e}')
             return jsonify({'error': f'Failed to save file ({e})', 'code': 500}), 500
 
     @app.route(Config.IMAGES_ROUTE)
@@ -120,7 +127,8 @@ def register_routes(app: Flask):
         success, filename = Database.delete_image(image_id)
 
         if not success:
-            log_error(f'Failed to delete image file with id: {image_id}')
+            log_error(f'1 Failed to delete image file with id: {image_id}')
+            logger.error(f'Failed to delete image file with id: {image_id}')
             return jsonify({'error': 'Failed to delete image', 'code': 500}), 500
 
         delete_file(filename)

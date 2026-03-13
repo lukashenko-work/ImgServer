@@ -1,6 +1,7 @@
 """database.oy"""
 
 from contextlib import contextmanager
+import logging
 import sys
 from typing import List, Optional, Tuple
 from psycopg2 import pool
@@ -9,7 +10,7 @@ from psycopg2.extras import NamedTupleCursor
 
 from config import Config
 from models import Image
-from utils import log_critical, log_debug, log_error, log_exception, log_info, log_success
+from utils import log_critical, log_debug, log_error, log_info, log_success
 
 # connection_pool: ThreadedConnectionPool
 
@@ -23,6 +24,21 @@ from utils import log_critical, log_debug, log_error, log_exception, log_info, l
 #     conn_pool = pool.ThreadedConnectionPool(1, 20, Config.DATABASE_URL, cursor_factory=NamedTupleCursor)
 # except Exception as e:
 #     print('Error getting connection pool', e)
+
+logger = logging.getLogger(__name__)
+
+
+def do_something():
+    logger.debug("Это отладочное сообщение")
+    logger.info("Модуль выполняет действие")
+    try:
+        t = 1 / 0
+        print(t)
+    except ZeroDivisionError:
+        logger.exception("Произошла ошибка деления на ноль")
+
+
+do_something()
 
 
 class Database():
@@ -65,7 +81,9 @@ class Database():
                     yield cursor
             # yield connection.cursor(cursor_factory=NamedTupleCursor). Now cursor factory specified in connection
         except Exception as e:
-            log_error(f'Unable to get cursor from connection pool {e}')
+            log_error(f'1 Unable to get cursor from connection pool {e}')
+            logger.error(f'2 Unable to get cursor from connection pool {e}')
+            logger.exception(e)
         finally:
             Database.__connection_pool.putconn(conn)
 
@@ -85,22 +103,28 @@ class Database():
                         file_type TEXT NOT NULL
                     )
                 ''')
-                log_info('Database initialized')
+                log_info('1 Database initialized')
+                logger.info('2 Database initialized')
         except Exception as e:
-            print(e)
-            log_error(f'Error init DB {e}')
+            log_error(f'1 Error init DB {e}')
+            logger.error(f'2 Error init DB {e}')
+            logger.exception(e)
 
     @staticmethod
     def create_connection_pool():
         """Creates ThreadedConnectionPool
         """
         try:
-            log_debug(Config.DATABASE_URL)
+            log_debug('1 ' + Config.DATABASE_URL)
+            logger.debug('2 ' + Config.DATABASE_URL)
             Database.__connection_pool = pool.ThreadedConnectionPool(1, 20, Config.DATABASE_URL, cursor_factory=NamedTupleCursor)
-            log_info('Connection pool initialized')
+            log_info('1 Connection pool initialized')
+            logger.info('2 Connection pool initialized')
         except Exception as e:
-            log_critical('FATAL ERROR: Unable to initialize connection pool. Application terminated.')
-            log_exception(e)
+            log_critical('1 FATAL ERROR: Unable to initialize connection pool. Application terminated.')
+            logger.critical('2 FATAL ERROR: Unable to initialize connection pool. Application terminated.')
+            # log_exception(e)
+            logger.exception(e)
             sys.exit(1)
 
     @staticmethod
@@ -114,10 +138,13 @@ class Database():
                 id_data = cursor.fetchone()
                 # image_id = id_data[0] if id_data else None
                 image_id = id_data.id if id_data else None
-                log_success(f'Image saved to DB: {image.filename}, ID: {image_id}')
+                log_success(f'1 Image saved to DB: {image.filename}, ID: {image_id}')
+                logger.info(f'2 Image saved to DB: {image.filename}, ID: {image_id}')
                 return True, image_id
         except Exception as e:
-            log_error(f'Error image save to DB {e}')
+            log_error(f'1 Error image save to DB {e}')
+            logger.error(f'2 Error image save to DB {e}')
+            logger.exception(e)
             return False, None
 
     @staticmethod
@@ -184,7 +211,9 @@ class Database():
                 ]
                 return images, total, page
         except Exception as e:
-            log_error(f'Error get images from DB {e}')
+            log_error(f'1 Error get images from DB {e}')
+            logger.error(f'2 Error get images from DB {e}')
+            logger.exception(e)
             return [], -1, 0
 
     @staticmethod
@@ -232,8 +261,11 @@ class Database():
                 cursor.execute('''
                     DELETE FROM images WHERE id = %s
                 ''', (image_id, ))
-                log_success(f'Image with id: {image_id} deleted from DB: {filename}')
+                log_success(f'1 Image with id: {image_id} deleted from DB: {filename}')
+                logger.info(f'2 Image with id: {image_id} deleted from DB: {filename}')
                 return True, filename
         except Exception as e:
-            log_error(f'Error image delete from DB {e}')
+            log_error(f'1 Error image delete from DB {e}')
+            logger.error(f'2 Error image delete from DB {e}')
+            logger.exception(e)
             return False, None

@@ -2,9 +2,13 @@
 
 from dataclasses import dataclass
 from datetime import datetime
+import logging
 from typing import Dict, Optional
 
 from config import Config
+
+logger = logging.getLogger(__name__)
+logger.info("Models loaded")
 
 
 @dataclass
@@ -25,4 +29,4 @@ class Image:
             'upload_time': self.upload_time,
             'file_type': self.file_type,
             'url': f'/{Config.DOWNLOAD_ROUTE}/{self.filename}'
-        }        
+        }

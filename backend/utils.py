@@ -1,32 +1,28 @@
 """Utils module"""
 
-import logging
+import logging.config
 import os
 import typing as t
 import uuid
 
+from logger_config import LOGGING_CONFIG
 from config import Config
+
+logging.config.dictConfig(LOGGING_CONFIG)
+
+logger = logging.getLogger(__name__)
+
+logger.info(f'Logging started at {Config.LOG_FILE_PATH} with level {logging.getLevelName(logger.getEffectiveLevel())}')
 
 
 # Logging
 def setup_logging():
-    """Настройка логирования"""
     ensure_logs_dir()
-    log_format = '[%(asctime)s] %(levelname)s: %(message)s'
-    date_format = '%Y-%m-%d %H:%M:%S'
+    """Настройка логирования"""
+    # logging.config.dictConfig(LOGGING_CONFIG)
 
-    debug_level = logging.DEBUG if Config.DEBUG else logging.INFO
-
-    logging.basicConfig(
-        level=debug_level,
-        format=log_format,
-        datefmt=date_format,
-        handlers=[
-            logging.FileHandler(Config.LOG_FILE_PATH, encoding='utf-8'),
-            logging.StreamHandler()
-        ]
-    )
-    log_info(f'Logging started at {Config.LOG_FILE_PATH} with level {logging.getLevelName(debug_level)}')
+    # logger = logging.getLogger(__name__)
+    # logger.info(f'Logging started at {Config.LOG_FILE_PATH} with level {logging.getLevelName(logger.getEffectiveLevel())}')
 
 
 def log_info(message):
@@ -161,11 +157,14 @@ def save_file(filename: str, file_content: t.Any) -> tuple[bool, str]:
         with open(file_path, 'wb') as f:
             f.write(file_content)
 
-        log_success(f'File {new_filename} (original name: {original_name}) successfully saved to folders')
+        log_success(f'1 File {new_filename} (original name: {original_name}) successfully saved to folders')
+        logger.info(f'File {new_filename} (original name: {original_name}) successfully saved to folders')
         return True, new_filename
     except Exception as e:
         error_msg = f'Ошибка сохранения файла: {e}'
-        log_error(error_msg)
+        log_error('1 ' + error_msg)
+        logger.error(error_msg)
+        logger.exception(e)
         return False, error_msg
 
 
@@ -174,10 +173,13 @@ def delete_file(filename):
         file_path = os.path.join(Config.UPLOAD_FOLDER, filename)
         if os.path.exists(file_path):
             os.remove(file_path)
-            log_success(f'Image {filename} deleted from folder successfully')
+            log_success(f'1 Image {filename} deleted from folder successfully')
+            logger.info(f'Image {filename} deleted from folder successfully')
             return True
         return False
     except Exception as e:
         error_msg = f'Ошибка удаления файла: {e}'
-        log_error(error_msg)
+        log_error('1 ' + error_msg)
+        logger.error(error_msg)
+        logger.exception(e)
         return False

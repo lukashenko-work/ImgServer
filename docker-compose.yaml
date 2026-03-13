@@ -3,18 +3,20 @@ name: image_server
 services:
 
   postgres:
+    env_file:
+      - ./backend/.env
     container_name: img_srv_pgsql
     image: postgres:18-alpine
     environment:
-      - POSTGRES_DB=images_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB={POSTGRES_DB}
+      - POSTGRES_USER={POSTGRES_USER}
+      - POSTGRES_PASSWORD={POSTGRES_PASSWORD}
     volumes:
       - img_srv_pgdata_volume:/var/lib/postgresql # Persists the data
     ports:
       - "5432:5432"
     networks:
-      - img_srv_network
+      - img_srv_backend_network
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       # test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
@@ -36,7 +38,8 @@ services:
       # - ./uploads:/app/images
       # - ./logs:/app/logs
     networks:
-      - img_srv_network
+      - img_srv_frontend_network
+      - img_srv_backend_network
     depends_on:
       - postgres
 
@@ -56,7 +59,7 @@ services:
       - img_srv_shared_images:/usr/share/nginx/uploads:ro;
     # restart: unless-stopped
     networks:
-      - img_srv_network
+      - img_srv_frontend_network
     depends_on:
       - app
 
@@ -69,6 +72,9 @@ volumes:
     name: img_srv_logs
 
 networks:
-  img_srv_network:
-    name: img_srv_network # Explicitly set the name
+  img_srv_frontend_network:
+    name: img_srv_frontend_network # Explicitly set the name
+    driver: bridge
+  img_srv_backend_network:
+    name: img_srv_backend_network # Explicitly set the name
     driver: bridge

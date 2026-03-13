@@ -1,12 +1,15 @@
 """Backup module"""
 
-
 from datetime import datetime
+import logging
 from os import path
 import subprocess
 import sys
 from config import Config
 from utils import ensure_backups_dir, format_file_size, log_debug, log_error, log_info, setup_logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def create_backup():
@@ -43,7 +46,9 @@ def create_backup():
             '-f', backup_file_path
         ]
         log_debug(pg_dump_cmd)
-        log_info(f'Creating backup to: {backup_filename}')
+        logger.debug(pg_dump_cmd)
+        log_info(f'1 Creating backup to: {backup_filename}')
+        logger.info(f'2 Creating backup to: {backup_filename}')
 
         result = subprocess.run(
             pg_dump_cmd,
@@ -54,14 +59,18 @@ def create_backup():
         if result.returncode == 0:
             file_size = path.getsize(backup_file_path)
             size_formatted = format_file_size(file_size)
-            log_info(f'Backup successfully created at {backup_filename} ({size_formatted})')
+            log_info(f'1 Backup successfully created at {backup_filename} ({size_formatted})')
+            logger.info(f'2 Backup successfully created at {backup_filename} ({size_formatted})')
 
             return True, backup_filename
         else:
-            log_error(f'Error: {result.stderr}')
+            log_error(f'1 Error: {result.stderr}')
+            logger.error(f'2 Error: {result.stderr}')
             return False, result.stderr
     except Exception as e:
-        log_error(f'Error: {e}')
+        log_error(f'1 Error: {e}')
+        logger.error(f'2 Error: {e}')
+        logger.exception(e)
         return False, str(e)
 
 
@@ -98,7 +107,8 @@ def restore_backup(backup_filename: str):
             backup_file_path
         ]
 
-        log_info(f'Restoring backup from: {backup_filename}')
+        log_info(f'1 Restoring backup from: {backup_filename}')
+        logger.info(f'Restoring backup from: {backup_filename}')
 
         result = subprocess.run(
             pg_restore_cmd,
@@ -107,14 +117,18 @@ def restore_backup(backup_filename: str):
         )
 
         if result.returncode == 0:
-            log_info(f'Backup successfully restored from {backup_filename}')
+            log_info(f'1 Backup successfully restored from {backup_filename}')
+            logger.info(f'Backup successfully restored from {backup_filename}')
 
             return True, backup_filename
         else:
-            log_error(f'Error: {result.stderr}')
+            log_error(f'1 Error: {result.stderr}')
+            logger.error(f'2 Error: {result.stderr}')
             return False, result.stderr
     except Exception as e:
-        log_error(f'Error: {e}')
+        log_error(f'1 Error: {e}')
+        logger.error(f'2 Error: {e}')
+        logger.exception(e)
         return False, str(e)
 
 
